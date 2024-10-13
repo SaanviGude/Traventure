@@ -3,12 +3,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'main.dart';
 import 'homepage.dart';
-class ProfilePage extends StatefulWidget {
+class GuideProfilePage extends StatefulWidget {
   @override
   _ProfilePageState createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _ProfilePageState extends State<GuideProfilePage> {
   TextEditingController _nameController = TextEditingController();
   TextEditingController _phoneController = TextEditingController();
   TextEditingController _aadhaarController = TextEditingController();
@@ -38,24 +38,14 @@ class _ProfilePageState extends State<ProfilePage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            isUser = true;
-                          });
-                        },
-                        child: Text('USER',style: TextStyle(color: Color(0xFFE4D59F))),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: isUser ? Color(0xFF4D8C53) : Color(0xFF235537),
-                        ),
-                      ),
+
                       ElevatedButton(
                         onPressed: () {
                           setState(() {
                             isUser = false;
                           });
                         },
-                        child: Text('GUIDE',style: TextStyle(color: Color(0xFFE4D59F))),
+                        child: Text('GUIDE',style: TextStyle(color: Color(0xFFE4D59F),fontSize:25.00)),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: isUser ? Color(0xFF235537) : Color(0xFF4D8C53),
                         ),
@@ -120,8 +110,9 @@ class _ProfilePageState extends State<ProfilePage> {
                           );
                         },
                         child: Text('BACK',style:TextStyle(color:Color(
-                            0xFF235537))),
+                            0xFF235537) , fontSize: 25.00)),
                         style: ElevatedButton.styleFrom(
+
                           padding: EdgeInsets.symmetric(horizontal: 24),
                           backgroundColor: Color(0xFFE4D59F),
                         ),
@@ -173,7 +164,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               ));
                             }
                           }, child: Text('SIGN UP',style:TextStyle(color:Color(
-                          0xFF235537))),
+                          0xFF235537),fontSize: 25.00)),
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(horizontal: 24),
                 backgroundColor: Color(0xFFDCD0A1),

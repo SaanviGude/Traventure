@@ -6,7 +6,8 @@ import 'userprofile.dart';
 import 'guideprofile.dart';
 import 'forgot.dart';
 import 'homepage.dart';
-
+import 'homepagenotlogin.dart';
+import 'profile.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -25,7 +26,9 @@ Future<void> main() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Login Page',
       theme: ThemeData(
         primarySwatch: Colors.green,
@@ -229,11 +232,11 @@ class _LoginPageState extends State<LoginPage> {
                           // Skip action
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => HomePage()),
+                            MaterialPageRoute(builder: (context) => noHomePage()),
                           );
                         },
                         child: Text('SKIP',
-                            style: TextStyle(color: Color(0xFF255A39))
+                            style: TextStyle(color: Color(0xFF255A39),fontSize: 25.00)
                         ),
                         style: ElevatedButton.styleFrom(
                             backgroundColor: Color(0xFFDCD0A1)
@@ -249,7 +252,7 @@ class _LoginPageState extends State<LoginPage> {
                             MaterialPageRoute(builder: (context) => AdminLoginPage()),
                           );
                         },
-                        child: Text('ADMIN', style: TextStyle(color: Color(0xFF255A39))),
+                        child: Text('ADMIN', style: TextStyle(color: Color(0xFF255A39),fontSize: 25.00)),
                         style:
                         ElevatedButton.styleFrom(
                             backgroundColor: Color(0xFFDCD0A1)
@@ -400,7 +403,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                             // Create account action
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => ProfilePage()),
+                              MaterialPageRoute(builder: (context) => GuideProfilePage()),
                             );
                           },
                           child: Text(

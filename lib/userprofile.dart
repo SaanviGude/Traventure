@@ -21,6 +21,14 @@ class _ProfilePageState extends State<UserProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(onPressed: () {
+          Navigator.of (context).pop();
+          }, icon:const Icon( Icons.arrow_back_outlined)),
+        title:Text('Create Profile'),
+      centerTitle: true,
+        backgroundColor: Color(0xFF255A39),
+      ),
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
@@ -45,22 +53,12 @@ class _ProfilePageState extends State<UserProfilePage> {
                             isUser = true;
                           });
                         },
-                        child: Text('USER',style: TextStyle(color: Color(0xFFE4D59F))),
+                        child: Text('USER',style: TextStyle(color: Color(0xFFE4D59F),fontSize: 25.00)),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: isUser ? Color(0xFF4D8C53) : Color(0xFF235537),
                         ),
                       ),
-                      ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            isUser = false;
-                          });
-                        },
-                        child: Text('GUIDE',style: TextStyle(color: Color(0xFFE4D59F))),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: isUser ? Color(0xFF235537) : Color(0xFF4D8C53),
-                        ),
-                      ),
+
                     ],
                   ),
                   SizedBox(height: 16),
@@ -121,7 +119,7 @@ class _ProfilePageState extends State<UserProfilePage> {
                           );
                         },
                         child: Text('BACK',style:TextStyle(color:Color(
-                            0xFF235537))),
+                            0xFF235537),fontSize: 25.00)),
                         style: ElevatedButton.styleFrom(
                           padding: EdgeInsets.symmetric(horizontal: 24),
                           backgroundColor: Color(0xFFE4D59F),
@@ -165,7 +163,7 @@ class _ProfilePageState extends State<UserProfilePage> {
                             ));
                           }
                         },
-                        child: Text('SIGN UP', style: TextStyle(color: Color(0xFF235537))),
+                        child: Text('SIGN UP', style: TextStyle(color: Color(0xFF235537),fontSize: 25.00)),
                         style: ElevatedButton.styleFrom(
                           padding: EdgeInsets.symmetric(horizontal: 24),
                           backgroundColor: Color(0xFFDCD0A1),
@@ -217,9 +215,11 @@ class _ProfilePageState extends State<UserProfilePage> {
           labelText: labelText,
           filled: true,
           fillColor: Color(0xFFF3E5B5).withOpacity(0.8),
+
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius:  BorderRadius.circular(10)
           ),
+
         ),
       ),
     );
