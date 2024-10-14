@@ -113,10 +113,7 @@ class _ProfilePageState extends State<UserProfilePage> {
                     children: [
                       ElevatedButton(
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => (LoginPage())),
-                          );
+                          Navigator.of(context).pop();
                         },
                         child: Text('BACK',style:TextStyle(color:Color(
                             0xFF235537),fontSize: 25.00)),
@@ -139,16 +136,17 @@ class _ProfilePageState extends State<UserProfilePage> {
 
                           try {
                             // Firebase Authentication
+                            print('Storing guide: ${_nameController.text.trim()}, ${_phoneController.text.trim()}');
                             UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
                               email: email,
                               password: password,
                             );
                             Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => (HomePage())
+                                MaterialPageRoute(builder: (context) => HomePage(selectedSearch:null, userId: userCredential.user?.uid ?? '')
                                 ));
                             // Store additional user details in Firestore
-                            await FirebaseFirestore.instance.collection('users').doc(userCredential.user?.uid).set({
+                            await FirebaseFirestore.instance.collection('userlogin').doc(userCredential.user?.uid).set({
                               'name': _nameController.text.trim(),
                               'phone': _phoneController.text.trim(),
                               'aadhaar': _aadhaarController.text.trim(),

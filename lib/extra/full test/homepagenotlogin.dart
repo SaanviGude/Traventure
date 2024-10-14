@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_basics/userprofile.dart';
 import 'profile.dart';
-import 'main.dart' ;
-
 import 'userprofile.dart';
 
 class noHomePage extends StatelessWidget {
@@ -12,7 +10,7 @@ class noHomePage extends StatelessWidget {
       appBar: AppBar(
         // Single leading button (back arrow)
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_outlined),color: Color(0xFFDCD0A1),
+          icon: const Icon(Icons.arrow_back_outlined),
           onPressed: () {
             Navigator.of(context).pop();
           },
@@ -25,7 +23,7 @@ class noHomePage extends StatelessWidget {
          child: Builder(
             builder: (context) {
               return IconButton(
-                icon: const Icon(Icons.menu),color: Color(0xFFDCD0A1),
+                icon: const Icon(Icons.menu),
                 onPressed: () {
                   Scaffold.of(context).openDrawer(); // Open the drawer when tapped
                 },
@@ -36,7 +34,7 @@ class noHomePage extends StatelessWidget {
             onPressed: () {
               showSearch(context: context, delegate: CustomSearchDelegate());
             },
-            icon: Icon(Icons.search),color: Color(0xFFDCD0A1),
+            icon: Icon(Icons.search),
           ),
 
           IconButton(
@@ -52,80 +50,32 @@ class noHomePage extends StatelessWidget {
         ],
       ),
       drawer: Drawer(
-        backgroundColor: Color(0xFFFBF6DF),
-        child: Column(
+        backgroundColor: Color(0xFFDCD0A1),
+        child: ListView(
           children: [
-            Expanded(
-              child: ListView(
-                children: [
-                  ListTile(
-                    leading: Icon(Icons.history, size: 50),
-                    title: Text(
-                      'History',
-                      style: TextStyle(
-                        fontSize: 30,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
-                    },
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.feedback_outlined, size: 50),
-                    title: const Text('Feedback',
-                      style: TextStyle(
-                        fontSize: 30,
-                        fontWeight: FontWeight.w500,),),
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
-                    },
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.settings, size: 50),
-                    title: const Text('Settings',
-                      style: TextStyle(
-                        fontSize: 30,
-                        fontWeight: FontWeight.w500,),),
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
-                    },
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.help_center, size: 50),
-                    title: const Text('Help desk',
-                        style: TextStyle(
-                          fontSize: 30,
-                          fontWeight: FontWeight.w500,)),
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
-                    },
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.logout_outlined, size: 50),
-                    title: const Text('Log Out',
-                        style: TextStyle(
-                          fontSize: 30,
-                          fontWeight: FontWeight.w500,)),
-                    onTap: () {
-                      //Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilePage()));
-                    },
-                  ),
-                ],
-              ),
+            ListTile(
+              title: const Text('item1'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ProfilePage()),
+                );
+              },
             ),
-            Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Image.asset(
-                'images/Traventurelogo1.png',
-                height: 300,
-                width: 300,
-                fit: BoxFit.cover,
-              ),
+
+            ListTile(
+              title: const Text('Item 2'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ProfilePage()),
+                );
+              },
             ),
           ],
         ),
-      ), body: Padding(
+      ),
+      body: Padding(
         padding: const EdgeInsets.all(12.0),
         child: GridView.builder(
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -174,10 +124,8 @@ class TripCard extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(10.0),
             child: Column(
-
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
                 Text(
                   'Goa Wonders',
                   style: TextStyle(

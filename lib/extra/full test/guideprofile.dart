@@ -3,10 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'main.dart';
 import 'homepage.dart';
-import 'guidehome.dart';
 class GuideProfilePage extends StatefulWidget {
- // final String? userId;
-//  GuideProfilePage({required this.userId});
   @override
   _ProfilePageState createState() => _ProfilePageState();
 }
@@ -107,8 +104,10 @@ class _ProfilePageState extends State<GuideProfilePage> {
                     children: [
                       ElevatedButton(
                         onPressed: () {
-                          Navigator.of(context).pop()
-                          ;
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => (AdminLoginPage())),
+                          );
                         },
                         child: Text('BACK',style:TextStyle(color:Color(
                             0xFF235537) , fontSize: 25.00)),
@@ -133,18 +132,17 @@ class _ProfilePageState extends State<GuideProfilePage> {
 
                             try {
                               // Firebase Authentication
-                              print('Storing guide: ${_nameController.text.trim()}, ${_phoneController.text.trim()}');
                               UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
                                 email: email,
                                 password: password,
                               );
                               Navigator.push(
                                   context,
-                                  MaterialPageRoute(builder: (context) => GHomePage(selectedSearch:null, userId: userCredential.user?.uid ?? '')),
+                                  MaterialPageRoute(builder: (context) => HomePage()),
                               );
 
                               // Store additional user details in Firestore
-                              await FirebaseFirestore.instance.collection('guides').doc(userCredential.user?.uid).set({
+                              await FirebaseFirestore.instance.collection('users').doc(userCredential.user?.uid).set({
                                 'name': _nameController.text.trim(),
                                 'phone': _phoneController.text.trim(),
                                 'aadhaar': _aadhaarController.text.trim(),
@@ -165,12 +163,12 @@ class _ProfilePageState extends State<GuideProfilePage> {
                                 content: Text('Error: ${e.toString()}'),
                               ));
                             }
-                          },
-                        child: Text('SIGN UP',style:TextStyle(color:Color( 0xFF235537),fontSize: 25.00)),
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(horizontal: 24),
-                          backgroundColor: Color(0xFFDCD0A1),
-                          textStyle: TextStyle(color: Color(0xFF235537)),
+                          }, child: Text('SIGN UP',style:TextStyle(color:Color(
+                          0xFF235537),fontSize: 25.00)),
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(horizontal: 24),
+                backgroundColor: Color(0xFFDCD0A1),
+                textStyle: TextStyle(color: Color(0xFF235537)),
               ),
                       ),
                     ],
