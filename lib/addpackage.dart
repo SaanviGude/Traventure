@@ -1,4 +1,4 @@
-
+/*
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
@@ -128,5 +128,288 @@ class _AddPackagePageState extends State<AddPackagePage> {
     );
   }
 }
+1st code
+*/
+
+//2nd code
+/*
+import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:file_picker/file_picker.dart';
+import 'dart:typed_data'; // To handle image data as bytes
+import 'dart:convert';
+class AddPackagePage extends StatefulWidget {
+  @override
+  _AddPackagePageState createState() => _AddPackagePageState();
+}
+
+class _AddPackagePageState extends State<AddPackagePage> {
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _priceController = TextEditingController();
+  final TextEditingController _daysController = TextEditingController();
+  final TextEditingController _ratingController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+
+  Uint8List? _imageBytes; // To store the selected image bytes
+  final ImagePicker _picker = ImagePicker();
+/*
+  Future<void> _pickImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      // For web, read the file as a blob and create a URL
+      final reader = html.FileReader();
+      final file = html.File([pickedFile.readAsBytes()],pickedFile.path);
+      reader.readAsArrayBuffer(file);
+      reader.onLoadEnd.listen((event) {
+        setState(() {
+          // Convert the result to bytes
+          _imageBytes = reader.result as Uint8List;
+        });
+      });
+    }
+    else {
+      // Handle the case when no file was picked
+      print("No image selected.");
+    }
+  }*/
+  Future<void> handleFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles();
+    if (result != null) {
+      // Your mobile-specific file handling code
+    }
+  }
+  Future<void> _addPackage() async {
+    await FirebaseFirestore.instance.collection('packages').add({
+      'name': _nameController.text,
+      'price': _priceController.text,
+      'days': _daysController.text,
+      'rating': _ratingController.text,
+      'description': _descriptionController.text,
+      // If you need to store the image, convert it to base64 and save it.
+      'image': _imageBytes != null ? 'data:image/png;base64,' + base64Encode(_imageBytes!) : null,
+    });
+    Navigator.pop(context); // Navigate back after adding
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      resizeToAvoidBottomInset: false,
+      appBar: AppBar(
+        title: Text('Add Package'),
+        backgroundColor: Color(0xFF4D8C53),
+      ),
+      backgroundColor: Color(0xFFDCD0A1),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            SizedBox(height: 24),
+            _buildTextField(_nameController, 'Package Name'),
+            SizedBox(height: 24),
+            _buildTextField(_priceController, 'Price'),
+            SizedBox(height: 24),
+            _buildTextField(_daysController, 'Duration (Days)'),
+            SizedBox(height: 24),
+            _buildTextField(_ratingController, 'Rating'),
+            SizedBox(height: 24),
+            _buildTextField(_descriptionController, 'Description'),
+            SizedBox(height: 20),
+            GestureDetector(
+              onTap: handleFile, // Open image picker when tapped
+              child: Container(
+                width: double.infinity,
+                height: 200,
+                decoration: BoxDecoration(
+                  color: Color(0xFFEDEDEA),
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: _imageBytes != null
+                    ? ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.memory(
+                    _imageBytes!,
+                    fit: BoxFit.cover,
+                  ),
+                )
+                    : Center(child: Text('Tap to select an image')),
+              ),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _addPackage,
+              child: Text('Add Package'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField(TextEditingController controller, String label) {
+    return Container(
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Color(0xFFFFFFFF),
+        borderRadius: BorderRadius.circular(25),
+      ),
+      child: TextField(
+        controller: controller,
+        decoration: InputDecoration(labelText: label),
+      ),
+    );
+  }
+}
+1st code
+*/
+
+//2nd code
+
+
+import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:file_picker/file_picker.dart';
+import 'dart:typed_data'; // To handle image data as bytes
+import 'dart:convert';
+class AddPackagePage extends StatefulWidget {
+  @override
+  _AddPackagePageState createState() => _AddPackagePageState();
+}
+
+class _AddPackagePageState extends State<AddPackagePage> {
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _priceController = TextEditingController();
+  final TextEditingController _daysController = TextEditingController();
+  final TextEditingController _ratingController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+
+  Uint8List? _imageBytes; // To store the selected image bytes
+  final ImagePicker _picker = ImagePicker();
+/*
+  Future<void> _pickImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      // For web, read the file as a blob and create a URL
+      final reader = html.FileReader();
+      final file = html.File([pickedFile.readAsBytes()],pickedFile.path);
+      reader.readAsArrayBuffer(file);
+      reader.onLoadEnd.listen((event) {
+        setState(() {
+          // Convert the result to bytes
+          _imageBytes = reader.result as Uint8List;
+        });
+      });
+    }
+    else {
+      // Handle the case when no file was picked
+      print("No image selected.");
+    }
+  }*/
+  Future<void> handleFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles();
+    if (result != null) {
+      // Your mobile-specific file handling code
+    }
+  }
+  Future<void> _addPackage() async {
+    double? price = double.tryParse(_priceController.text);
+    if (price == null) {
+      // Show an error if the price is invalid
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please enter a valid price.')),
+      );
+      return;
+    }
+
+
+    await FirebaseFirestore.instance.collection('packages').add({
+      'name': _nameController.text,
+      'price': _priceController.text,
+      'days': _daysController.text,
+      'rating': _ratingController.text,
+      'description': _descriptionController.text,
+      // If you need to store the image, convert it to base64 and save it.
+      'image': _imageBytes != null ? 'data:image/png;base64,' + base64Encode(_imageBytes!) : null,
+    });
+    Navigator.pop(context); // Navigate back after adding
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      resizeToAvoidBottomInset: false,
+      appBar: AppBar(
+        title: Text('Add Package'),
+        backgroundColor: Color(0xFF4D8C53),
+      ),
+      backgroundColor: Color(0xFFDCD0A1),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            SizedBox(height: 24),
+            _buildTextField(_nameController, 'Package Name'),
+            SizedBox(height: 24),
+            _buildTextField(_priceController, 'Price', isNumeric: true),
+            SizedBox(height: 24),
+            _buildTextField(_daysController, 'Duration (Days)'),
+            SizedBox(height: 24),
+            _buildTextField(_ratingController, 'Rating'),
+            SizedBox(height: 24),
+            _buildTextField(_descriptionController, 'Description'),
+            SizedBox(height: 20),
+            GestureDetector(
+              onTap: handleFile, // Open image picker when tapped
+              child: Container(
+                width: double.infinity,
+                height: 200,
+                decoration: BoxDecoration(
+                  color: Color(0xFFEDEDEA),
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: _imageBytes != null
+                    ? ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.memory(
+                    _imageBytes!,
+                    fit: BoxFit.cover,
+                  ),
+                )
+                    : Center(child: Text('Tap to select an image')),
+              ),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _addPackage,
+              child: Text('Add Package'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField(TextEditingController controller, String label,{bool isNumeric = false}) {
+    return Container(
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Color(0xFFFFFFFF),
+        borderRadius: BorderRadius.circular(25),
+      ),
+      child: TextField(
+        controller: controller,
+        keyboardType: isNumeric ? TextInputType.number : TextInputType.text,
+        decoration: InputDecoration(labelText: label),
+      ),
+    );
+  }
+}
+
+
+
 
 

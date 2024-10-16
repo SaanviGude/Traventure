@@ -33,6 +33,7 @@ dependencies:
   image_picker: ^0.8.5+3
   file_picker: ^5.2.1  # Or the latest version
   responsive_framework: ^0.2.0
+  razorpay_flutter: ^1.2.5
 
 
 

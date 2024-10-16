@@ -746,7 +746,7 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Color(0xFF5E8953),
         actions: <Widget>[
 
-         /* IconButton(
+          /* IconButton(
             onPressed: () async {
               final result = await showSearch(context: context, delegate: CustomSearchDelegate());
               if (result != null) {
@@ -843,9 +843,9 @@ class _HomePageState extends State<HomePage> {
                   ListTile(
                     leading: Icon(Icons.settings, size: 50),
                     title: const Text('Settings',
-                    style: TextStyle(
-                      fontSize: 30,
-                      fontWeight: FontWeight.w500,),),
+                      style: TextStyle(
+                        fontSize: 30,
+                        fontWeight: FontWeight.w500,),),
                     onTap: () {
                       Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilePage(userId: FirebaseAuth.instance.currentUser?.uid,)));
                     },
@@ -866,7 +866,7 @@ class _HomePageState extends State<HomePage> {
                         style: TextStyle(
                           fontSize: 30,
                           fontWeight: FontWeight.w500,)),
-                     onTap: () {
+                    onTap: () {
                       _logout(context); // Call the log-out function
                     },
                     //  Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilePage()));
@@ -887,53 +887,53 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       backgroundColor: Color(0xFFDCD0A1),
-        body: FutureBuilder<List<Map<String, dynamic>>>(
+      body: FutureBuilder<List<Map<String, dynamic>>>(
         future: _fetchPackages(),
-    builder: (context, snapshot) {
-    if (snapshot.connectionState == ConnectionState.waiting) {
-    return Center(child: CircularProgressIndicator());
-    } else if (snapshot.hasError) {
-    return Center(child: Text('Error: ${snapshot.error}'));
-    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-    return Center(child: Text('No packages found.'));
-    }
-    final tripPackages = snapshot.data!;
-    final filteredPackages = widget.selectedSearch != null
-    ?
-    tripPackages.where((package) =>
-    package['name']!.toLowerCase().contains(
-    widget.selectedSearch!.toLowerCase()))
-        .toList()
-        : tripPackages;
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(child: Text('No packages found.'));
+          }
+          final tripPackages = snapshot.data!;
+          final filteredPackages = widget.selectedSearch != null
+              ?
+          tripPackages.where((package) =>
+              package['name']!.toLowerCase().contains(
+                  widget.selectedSearch!.toLowerCase()))
+              .toList()
+              : tripPackages;
 
-    return Padding(
+          return Padding(
 
-    padding: const EdgeInsets.all(12.0),
-    child: GridView.builder(
+            padding: const EdgeInsets.all(12.0),
+            child: GridView.builder(
 
-    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-    crossAxisCount: 2,
-    childAspectRatio: 0.75,
-    crossAxisSpacing: 10,
-    mainAxisSpacing: 10,
-    ),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                childAspectRatio: 0.75,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
+              ),
 
-    itemCount: filteredPackages.length,
-    itemBuilder: (context, index) {
-    var trip = filteredPackages[index];
-    return TripCard(
-        image: trip['image'] ?? 'https://via.placeholder.com/150',  // Default image if null
-        title: trip['name'] ?? 'Unknown',                            // Default name if null
-        price: trip['price'] ?? 'N/A',                              // Default price if null
-        days: trip['days'] ?? '0',                                  // Default days if null
-        rating: trip['rating'] ?? '0',                              // Default rating if null
-        description: trip['description'] ?? 'No description available',
-    );// Default description if null
-    },
-    ),
-    );
-    },
-        ),
+              itemCount: filteredPackages.length,
+              itemBuilder: (context, index) {
+                var trip = filteredPackages[index];
+                return TripCard(
+                  image: trip['image'] ?? 'https://via.placeholder.com/150',  // Default image if null
+                  title: trip['name'] ?? 'Unknown',                            // Default name if null
+                  price: trip['price'] != null ? trip['price'] : 0,                              // Default price if null
+                  days: trip['days'] ?? '0',                                  // Default days if null
+                  rating: trip['rating'] ?? '0',                              // Default rating if null
+                  description: trip['description'] ?? 'No description available',
+                );// Default description if null
+              },
+            ),
+          );
+        },
+      ),
     );
   }
 }
@@ -941,7 +941,7 @@ class _HomePageState extends State<HomePage> {
 class TripCard extends StatelessWidget {
   final String image;
   final String title;
-  final String price;
+  final int price;
   final String days;
   final String rating;
   final String description;
@@ -964,12 +964,14 @@ class TripCard extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (context) => PackageDetailPage(
+              userId:FirebaseAuth.instance.currentUser?.uid,
               image: image,
               title: title,
               price: price,
               days: days,
               rating: rating,
               description: description,
+
             ),
           ),
         );
@@ -1012,7 +1014,7 @@ class TripCard extends StatelessWidget {
                   ),
                   SizedBox(height: 5),
                   Text(
-                    price,
+                    price.toString(),
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.black87,
@@ -1168,14 +1170,14 @@ void _logout(BuildContext context) async {
   }
 }
 
-  Future<List<Map<String, dynamic>>> _fetchPackages() async {
+Future<List<Map<String, dynamic>>> _fetchPackages() async {
   try {
-  final snapshot = await FirebaseFirestore.instance.collection('packages').get();
-  return snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+    final snapshot = await FirebaseFirestore.instance.collection('packages').get();
+    return snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
   } catch (e) {
-  throw Exception('Failed to load packages: $e');
+    throw Exception('Failed to load packages: $e');
   }
-  }
+}
 
 
 class CustomSearchDelegate extends SearchDelegate {
