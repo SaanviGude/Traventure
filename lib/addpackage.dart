@@ -316,6 +316,7 @@ class _AddPackagePageState extends State<AddPackagePage> {
   }
   Future<void> _addPackage() async {
     double? price = double.tryParse(_priceController.text);
+    //double? price = double.tryParse(_priceController.text);
     if (price == null) {
       // Show an error if the price is invalid
       ScaffoldMessenger.of(context).showSnackBar(
@@ -327,7 +328,7 @@ class _AddPackagePageState extends State<AddPackagePage> {
 
     await FirebaseFirestore.instance.collection('packages').add({
       'name': _nameController.text,
-      'price': _priceController.text,
+      'price': price,
       'days': _daysController.text,
       'rating': _ratingController.text,
       'description': _descriptionController.text,

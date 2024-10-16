@@ -941,7 +941,7 @@ class _HomePageState extends State<HomePage> {
 class TripCard extends StatelessWidget {
   final String image;
   final String title;
-  final int price;
+  final double price;
   final String days;
   final String rating;
   final String description;

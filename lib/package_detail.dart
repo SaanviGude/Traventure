@@ -1180,7 +1180,7 @@ class PackageDetailPage extends StatelessWidget {
   final String? userId;
   final String? image;  // Can be a Base64 string or asset name
   final String title;
-  final int price;
+  final double price;
   final String days;
   final String rating;
   final String description;
