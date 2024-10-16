@@ -744,6 +744,7 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
         backgroundColor: Color(0xFF5E8953),
+        title: Text('Traventure', style: TextStyle(color: Color(0xFFDCD0A1))),
         actions: <Widget>[
 
           /* IconButton(
@@ -847,7 +848,7 @@ class _HomePageState extends State<HomePage> {
                         fontSize: 30,
                         fontWeight: FontWeight.w500,),),
                     onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilePage(userId: FirebaseAuth.instance.currentUser?.uid,)));
+                      //Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilePage(userId: FirebaseAuth.instance.currentUser?.uid,)));
                     },
                   ),
                   ListTile(
