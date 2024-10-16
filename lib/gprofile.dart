@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; // Import Firestore
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_basics/editgprofile.dart'; // Import Firestore
 
 class GProfilePage extends StatefulWidget {
   final String? userId; // Pass the user ID to the page
@@ -142,7 +143,11 @@ class _ProfilePageState extends State<GProfilePage> {
                                     Spacer(),
                                     ElevatedButton(
                                       onPressed: () {
-                                        // Handle edit profile button
+                                        Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                              builder: (context) => EditGuideProfile(userId: widget.userId),
+                                            ),
+                                        );
                                       },
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: Color(0xFF315F3C), // Button color

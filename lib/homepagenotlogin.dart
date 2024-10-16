@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_basics/helpdesk.dart';
-import 'package:flutter_basics/userprofile.dart';
 import 'profile.dart';
 import 'notprofile.dart';
 import 'main.dart';
@@ -15,27 +14,9 @@ class noHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_outlined),
-          color: Color(0xFFDCD0A1),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
         backgroundColor: Color(0xFF5E8953),
+        title: Text('Traventure', style: TextStyle(color: Color(0xFFDCD0A1))),
         actions: <Widget>[
-          Padding(
-            padding: EdgeInsets.only(right: 280),
-            child: Builder(
-              builder: (context) {
-                return IconButton(
-                  icon: const Icon(Icons.menu),
-                  color: Color(0xFFDCD0A1),
-                  onPressed: () {
-                    Scaffold.of(context).openDrawer();
-                  },
-                );
-              },
-            ),
-          ),
           IconButton(
             onPressed: () {
               showSearch(context: context, delegate: CustomSearchDelegate());
@@ -82,7 +63,7 @@ class noHomePage extends StatelessWidget {
                 final package = packages[index].data() as Map<String, dynamic>;
                 return TripCard(
                   name: package['name'],
-                  price: package['price'],
+                  price: package['price'], // Now int
                   days: package['days'],
                   rating: package['rating'],
                   description: package['description'],
@@ -157,7 +138,7 @@ class noHomePage extends StatelessWidget {
 
 class TripCard extends StatelessWidget {
   final String name;
-  final String price;
+  final int price; // Changed to int
   final String days;
   final String rating;
   final String description;
@@ -212,7 +193,7 @@ class TripCard extends StatelessWidget {
                 ),
                 SizedBox(height: 5),
                 Text(
-                  '$price/-',
+                  '$price/-', // Updated price display
                   style: TextStyle(fontSize: 14, color: Colors.black87),
                 ),
                 SizedBox(height: 5),
@@ -241,22 +222,10 @@ class TripCard extends StatelessWidget {
     );
   }
 }
-class CustomSearchDelegate extends SearchDelegate {
-  // You can pass your list of trips or fetch data from Firestore for search suggestions
-  final List<String> searchTerms = [
-    'Trip to the Alps',
-    'Beach Vacation',
-    'City Tour',
-    'Mountain Hike',
-    'Desert Safari',
-    'Cultural Journey',
-    'Cruise Trip',
-    'Safari Adventure'
-  ];
 
+class CustomSearchDelegate extends SearchDelegate {
   @override
   List<Widget>? buildActions(BuildContext context) {
-    // Actions for the app bar (like a clear button)
     return [
       IconButton(
         icon: Icon(Icons.clear),
@@ -269,7 +238,6 @@ class CustomSearchDelegate extends SearchDelegate {
 
   @override
   Widget? buildLeading(BuildContext context) {
-    // Leading icon on the left of the app bar (like a back button)
     return IconButton(
       icon: Icon(Icons.arrow_back),
       onPressed: () {
@@ -280,20 +248,33 @@ class CustomSearchDelegate extends SearchDelegate {
 
   @override
   Widget buildResults(BuildContext context) {
-    // Show some result based on the search term
-    List<String> matchQuery = [];
-    for (var trip in searchTerms) {
-      if (trip.toLowerCase().contains(query.toLowerCase())) {
-        matchQuery.add(trip);
-      }
-    }
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance.collection('packages').snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        }
 
-    return ListView.builder(
-      itemCount: matchQuery.length,
-      itemBuilder: (context, index) {
-        var result = matchQuery[index];
-        return ListTile(
-          title: Text(result),
+        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          return Center(child: Text('No packages found.'));
+        }
+
+        final results = snapshot.data!.docs.where((DocumentSnapshot package) {
+          final packageName = (package.data() as Map<String, dynamic>)['name'].toLowerCase();
+          return packageName.contains(query.toLowerCase());
+        }).toList();
+
+        return ListView.builder(
+          itemCount: results.length,
+          itemBuilder: (context, index) {
+            final package = results[index].data() as Map<String, dynamic>;
+            return ListTile(
+              title: Text(package['name']),
+              onTap: () {
+                close(context, null); // Handle result selection here
+              },
+            );
+          },
         );
       },
     );
@@ -301,23 +282,29 @@ class CustomSearchDelegate extends SearchDelegate {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    // Show suggestions when the user types
-    List<String> matchQuery = [];
-    for (var trip in searchTerms) {
-      if (trip.toLowerCase().contains(query.toLowerCase())) {
-        matchQuery.add(trip);
-      }
-    }
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance.collection('packages').snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return Center(child: CircularProgressIndicator());
+        }
 
-    return ListView.builder(
-      itemCount: matchQuery.length,
-      itemBuilder: (context, index) {
-        var suggestion = matchQuery[index];
-        return ListTile(
-          title: Text(suggestion),
-          onTap: () {
-            query = suggestion;
-            showResults(context);
+        final suggestions = snapshot.data!.docs.where((DocumentSnapshot package) {
+          final packageName = (package.data() as Map<String, dynamic>)['name'].toLowerCase();
+          return packageName.contains(query.toLowerCase());
+        }).toList();
+
+        return ListView.builder(
+          itemCount: suggestions.length,
+          itemBuilder: (context, index) {
+            final package = suggestions[index].data() as Map<String, dynamic>;
+            return ListTile(
+              title: Text(package['name']),
+              onTap: () {
+                query = package['name'];
+                showResults(context);
+              },
+            );
           },
         );
       },

@@ -44,7 +44,7 @@ class _HomePageState extends State<GHomePage> {
       resizeToAvoidBottomInset: false,
 
       appBar: AppBar(
-
+        title: Text('Traventure', style: TextStyle(color: Color(0xFFDCD0A1))),
         leading: Row(
           children:[
 
@@ -100,11 +100,11 @@ class _HomePageState extends State<GHomePage> {
             color: Color(0xFFDCD0A1),
           ),
         ],
-        title: Text(
+        /*title: Text(
             'guide homepage',
           overflow:TextOverflow.ellipsis
         ),
-        centerTitle: true,
+        centerTitle: true,*/
       ),
 
       drawer: Drawer(
@@ -164,8 +164,8 @@ class _HomePageState extends State<GHomePage> {
                         fontSize: 30,
                         fontWeight: FontWeight.w500,),),
                     onTap: () {
-                      Navigator.push(context, MaterialPageRoute(
-                          builder: (context) => GProfilePage(userId: FirebaseAuth.instance.currentUser?.uid,)));
+                      /*Navigator.push(context, MaterialPageRoute(
+                          builder: (context) => GProfilePage(userId: FirebaseAuth.instance.currentUser?.uid,)));*/
                     },
                   ),
                   ListTile(
