@@ -1,150 +1,177 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_basics/helpdesk.dart';
 import 'package:flutter_basics/userprofile.dart';
 import 'profile.dart';
-import 'main.dart' ;
-
+import 'notprofile.dart';
+import 'main.dart';
 import 'userprofile.dart';
 
 class noHomePage extends StatelessWidget {
+  final String userId;
+  noHomePage({required this.userId});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // Single leading button (back arrow)
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_outlined),color: Color(0xFFDCD0A1),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
+          icon: const Icon(Icons.arrow_back_outlined),
+          color: Color(0xFFDCD0A1),
+          onPressed: () => Navigator.of(context).pop(),
         ),
-
         backgroundColor: Color(0xFF5E8953),
         actions: <Widget>[
-          // Menu button moved to actions to avoid overflow
-          Padding(padding: EdgeInsets.only(right:280),
-         child: Builder(
-            builder: (context) {
-              return IconButton(
-                icon: const Icon(Icons.menu),color: Color(0xFFDCD0A1),
-                onPressed: () {
-                  Scaffold.of(context).openDrawer(); // Open the drawer when tapped
-                },
-              );
-            },
-          ),),
+          Padding(
+            padding: EdgeInsets.only(right: 280),
+            child: Builder(
+              builder: (context) {
+                return IconButton(
+                  icon: const Icon(Icons.menu),
+                  color: Color(0xFFDCD0A1),
+                  onPressed: () {
+                    Scaffold.of(context).openDrawer();
+                  },
+                );
+              },
+            ),
+          ),
           IconButton(
             onPressed: () {
               showSearch(context: context, delegate: CustomSearchDelegate());
             },
-            icon: Icon(Icons.search),color: Color(0xFFDCD0A1),
+            icon: Icon(Icons.search),
+            color: Color(0xFFDCD0A1),
           ),
-
           IconButton(
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => UserProfilePage()),
+                MaterialPageRoute(builder: (context) => NoProfilePage(userId: userId)),
               );
             },
             icon: const Icon(Icons.account_circle),
           ),
-
         ],
       ),
-      drawer: Drawer(
-        backgroundColor: Color(0xFFFBF6DF),
-        child: Column(
-          children: [
-            Expanded(
-              child: ListView(
-                children: [
-                  ListTile(
-                    leading: Icon(Icons.history, size: 50),
-                    title: Text(
-                      'History',
-                      style: TextStyle(
-                        fontSize: 30,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
-                    },
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.feedback_outlined, size: 50),
-                    title: const Text('Feedback',
-                      style: TextStyle(
-                        fontSize: 30,
-                        fontWeight: FontWeight.w500,),),
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
-                    },
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.settings, size: 50),
-                    title: const Text('Settings',
-                      style: TextStyle(
-                        fontSize: 30,
-                        fontWeight: FontWeight.w500,),),
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
-                    },
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.help_center, size: 50),
-                    title: const Text('Help desk',
-                        style: TextStyle(
-                          fontSize: 30,
-                          fontWeight: FontWeight.w500,)),
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
-                    },
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.logout_outlined, size: 50),
-                    title: const Text('Log Out',
-                        style: TextStyle(
-                          fontSize: 30,
-                          fontWeight: FontWeight.w500,)),
-                    onTap: () {
-                      //Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilePage()));
-                    },
-                  ),
-                ],
+      drawer: buildDrawer(context),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance.collection('packages').snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
+
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return Center(child: Text('No packages available.'));
+          }
+
+          final packages = snapshot.data!.docs;
+
+          return Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: GridView.builder(
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                childAspectRatio: 0.75,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
               ),
+              itemCount: packages.length,
+              itemBuilder: (context, index) {
+                final package = packages[index].data() as Map<String, dynamic>;
+                return TripCard(
+                  name: package['name'],
+                  price: package['price'],
+                  days: package['days'],
+                  rating: package['rating'],
+                  description: package['description'],
+                  imageUrl: package['image'],
+                );
+              },
             ),
-            Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Image.asset(
-                'images/Traventurelogo1.png',
-                height: 300,
-                width: 300,
-                fit: BoxFit.cover,
-              ),
+          );
+        },
+      ),
+    );
+  }
+
+  Drawer buildDrawer(BuildContext context) {
+    return Drawer(
+      backgroundColor: Color(0xFFFBF6DF),
+      child: Column(
+        children: [
+          Expanded(
+            child: ListView(
+              children: [
+                ListTile(
+                  leading: Icon(Icons.history, size: 50),
+                  title: Text('History', style: TextStyle(fontSize: 30, fontWeight: FontWeight.w500)),
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => NoProfilePage(userId: userId)));
+                  },
+                ),
+                ListTile(
+                  leading: Icon(Icons.feedback_outlined, size: 50),
+                  title: Text('Feedback', style: TextStyle(fontSize: 30, fontWeight: FontWeight.w500)),
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => NoProfilePage(userId: userId)));
+                  },
+                ),
+                ListTile(
+                  leading: Icon(Icons.settings, size: 50),
+                  title: Text('Settings', style: TextStyle(fontSize: 30, fontWeight: FontWeight.w500)),
+                  onTap: () {},
+                ),
+                ListTile(
+                  leading: Icon(Icons.help_center, size: 50),
+                  title: Text('Help desk', style: TextStyle(fontSize: 30, fontWeight: FontWeight.w500)),
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => helpdesk()));
+                  },
+                ),
+                ListTile(
+                  leading: Icon(Icons.logout_outlined, size: 50),
+                  title: Text('Log In', style: TextStyle(fontSize: 30, fontWeight: FontWeight.w500)),
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
+                  },
+                ),
+              ],
             ),
-          ],
-        ),
-      ), body: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: GridView.builder(
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            childAspectRatio: 0.75,
-            crossAxisSpacing: 10,
-            mainAxisSpacing: 10,
           ),
-          itemCount: 6,
-          itemBuilder: (context, index) {
-            return TripCard();
-          },
-        ),
+          Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Image.asset(
+              'images/Traventurelogo1.png',
+              height: 300,
+              width: 300,
+              fit: BoxFit.cover,
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
 class TripCard extends StatelessWidget {
+  final String name;
+  final String price;
+  final String days;
+  final String rating;
+  final String description;
+  final String? imageUrl;
+
+  TripCard({
+    required this.name,
+    required this.price,
+    required this.days,
+    required this.rating,
+    required this.description,
+    this.imageUrl,
+  });
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -165,7 +192,7 @@ class TripCard extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
             child: Image.network(
-              'https://via.placeholder.com/150',
+              imageUrl ?? 'https://via.placeholder.com/150',
               fit: BoxFit.cover,
               height: 120,
               width: double.infinity,
@@ -174,12 +201,10 @@ class TripCard extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(10.0),
             child: Column(
-
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
                 Text(
-                  'Goa Wonders',
+                  name,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
@@ -187,38 +212,26 @@ class TripCard extends StatelessWidget {
                 ),
                 SizedBox(height: 5),
                 Text(
-                  '25,000/-',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.black87,
-                  ),
+                  '$price/-',
+                  style: TextStyle(fontSize: 14, color: Colors.black87),
                 ),
                 SizedBox(height: 5),
                 Text(
-                  '3 days | 29 Sep',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey,
-                  ),
+                  '$days days',
+                  style: TextStyle(fontSize: 12, color: Colors.grey),
                 ),
                 SizedBox(height: 5),
                 Row(
                   children: [
                     Icon(Icons.star, color: Colors.amber, size: 16),
                     SizedBox(width: 5),
-                    Text(
-                      '3.5',
-                      style: TextStyle(fontSize: 12),
-                    ),
+                    Text(rating, style: TextStyle(fontSize: 12)),
                   ],
                 ),
                 SizedBox(height: 5),
                 Text(
-                  'Recommended',
-                  style: TextStyle(
-                    color: Colors.orangeAccent,
-                    fontSize: 12,
-                  ),
+                  description,
+                  style: TextStyle(color: Colors.orangeAccent, fontSize: 12),
                 ),
               ],
             ),
@@ -228,26 +241,25 @@ class TripCard extends StatelessWidget {
     );
   }
 }
-/*1change
 class CustomSearchDelegate extends SearchDelegate {
-
-  List<String> searchTerms = [
-    'goa wonders',
-    'hidden gem',
-    'sunset',
-    'beaches',
-    'Old goa',
-    'Sight seeing',
-    'small packages',
-    'trekking',
+  // You can pass your list of trips or fetch data from Firestore for search suggestions
+  final List<String> searchTerms = [
+    'Trip to the Alps',
+    'Beach Vacation',
+    'City Tour',
+    'Mountain Hike',
+    'Desert Safari',
+    'Cultural Journey',
+    'Cruise Trip',
+    'Safari Adventure'
   ];
 
   @override
-  List<Widget> buildActions(BuildContext context) {
+  List<Widget>? buildActions(BuildContext context) {
+    // Actions for the app bar (like a clear button)
     return [
-
       IconButton(
-        icon: const Icon(Icons.clear),
+        icon: Icon(Icons.clear),
         onPressed: () {
           query = '';
         },
@@ -256,9 +268,10 @@ class CustomSearchDelegate extends SearchDelegate {
   }
 
   @override
-  Widget buildLeading(BuildContext context) {
+  Widget? buildLeading(BuildContext context) {
+    // Leading icon on the left of the app bar (like a back button)
     return IconButton(
-      icon: const Icon(Icons.arrow_back),
+      icon: Icon(Icons.arrow_back),
       onPressed: () {
         close(context, null);
       },
@@ -267,12 +280,14 @@ class CustomSearchDelegate extends SearchDelegate {
 
   @override
   Widget buildResults(BuildContext context) {
+    // Show some result based on the search term
     List<String> matchQuery = [];
-    for (var term in searchTerms) {
-      if (term.toLowerCase().contains(query.toLowerCase())) {
-        matchQuery.add(term);
+    for (var trip in searchTerms) {
+      if (trip.toLowerCase().contains(query.toLowerCase())) {
+        matchQuery.add(trip);
       }
     }
+
     return ListView.builder(
       itemCount: matchQuery.length,
       itemBuilder: (context, index) {
@@ -286,230 +301,23 @@ class CustomSearchDelegate extends SearchDelegate {
 
   @override
   Widget buildSuggestions(BuildContext context) {
+    // Show suggestions when the user types
     List<String> matchQuery = [];
-    for (var term in searchTerms) {
-      if (term.toLowerCase().contains(query.toLowerCase())) {
-        matchQuery.add(term);
+    for (var trip in searchTerms) {
+      if (trip.toLowerCase().contains(query.toLowerCase())) {
+        matchQuery.add(trip);
       }
     }
+
     return ListView.builder(
       itemCount: matchQuery.length,
       itemBuilder: (context, index) {
-        var result = matchQuery[index];
+        var suggestion = matchQuery[index];
         return ListTile(
-          title: Text(result),
+          title: Text(suggestion),
           onTap: () {
-            close(context, result);
-          },
-        );
-      },
-    );
-  }
-}
-*/
-
-/*2nd change
-class CustomSearchDelegate extends SearchDelegate {
-  List<String> searchTerms = [
-    'goa wonders',
-    'hidden gem',
-    'sunset',
-    'beaches',
-    'Old goa',
-    'Sight seeing',
-    'small packages',
-    'trekking',
-  ];
-
-  @override
-  ThemeData appBarTheme(BuildContext context) {
-    return ThemeData(
-      // Customize the background color of the AppBar (search box)
-      appBarTheme: AppBarTheme(
-        backgroundColor: Color(0xFFDCD0A1), // Custom background color
-      ),
-      // Customize the text and cursor colors
-      textTheme: TextTheme(
-        titleLarge: TextStyle(
-          color: Color(0xFF000000), // Search text color
-        ),
-      ),
-      inputDecorationTheme: InputDecorationTheme(
-        hintStyle: TextStyle(color: Color(0xFF000000)), // Hint text color
-      ),
-      textSelectionTheme: TextSelectionThemeData(
-        cursorColor: Color(0xFF000000), // Cursor color in the search box
-      ),
-    );
-  }
-
-  @override
-  List<Widget> buildActions(BuildContext context) {
-    return [
-      IconButton(
-        icon: const Icon(Icons.clear),
-        onPressed: () {
-          query = '';
-        },
-      ),
-    ];
-  }
-
-  @override
-  Widget buildLeading(BuildContext context) {
-    return IconButton(
-      icon: const Icon(Icons.arrow_back),
-      onPressed: () {
-        close(context, null);
-      },
-    );
-  }
-
-  @override
-  Widget buildResults(BuildContext context) {
-    List<String> matchQuery = [];
-    for (var term in searchTerms) {
-      if (term.toLowerCase().contains(query.toLowerCase())) {
-        matchQuery.add(term);
-      }
-    }
-    return ListView.builder(
-      itemCount: matchQuery.length,
-      itemBuilder: (context, index) {
-        var result = matchQuery[index];
-        return ListTile(
-          title: Text(result),
-        );
-      },
-    );
-  }
-
-  @override
-  Widget buildSuggestions(BuildContext context) {
-    List<String> matchQuery = [];
-    for (var term in searchTerms) {
-      if (term.toLowerCase().contains(query.toLowerCase())) {
-        matchQuery.add(term);
-      }
-    }
-    return ListView.builder(
-      itemCount: matchQuery.length,
-      itemBuilder: (context, index) {
-        var result = matchQuery[index];
-        return ListTile(
-          title: Text(result),
-          onTap: () {
-            close(context, result); // Close search and return the selected result
-          },
-        );
-      },
-    );
-  }
-}
-*/
-
-class CustomSearchDelegate extends SearchDelegate {
-  List<String> searchTerms = [
-    'goa wonders',
-    'hidden gem',
-    'sunset',
-    'beaches',
-    'Old goa',
-    'Sight seeing',
-    'small packages',
-    'trekking',
-  ];
-
-  @override
-  ThemeData appBarTheme(BuildContext context) {
-    return ThemeData(
-      appBarTheme: AppBarTheme(
-        backgroundColor: Color(0xFFE1C767), // Custom background color of the search bar
-      ),
-      textTheme: TextTheme(
-        titleLarge: TextStyle(
-          color: Colors.black, // Search text color
-        ),
-      ),
-      inputDecorationTheme: InputDecorationTheme(
-        hintStyle: TextStyle(color: Colors.black), // Hint text color
-      ),
-      textSelectionTheme: TextSelectionThemeData(
-        cursorColor: Colors.black, // Cursor color in the search box
-      ),
-    );
-  }
-
-  @override
-  List<Widget> buildActions(BuildContext context) {
-    return [
-      IconButton(
-        icon: const Icon(Icons.clear),
-        onPressed: () {
-          query = '';
-        },
-      ),
-    ];
-  }
-
-  @override
-  Widget buildLeading(BuildContext context) {
-    return IconButton(
-      icon: const Icon(Icons.arrow_back),
-      onPressed: () {
-        close(context, null);
-      },
-    );
-  }
-
-  @override
-  Widget buildResults(BuildContext context) {
-    List<String> matchQuery = [];
-    for (var term in searchTerms) {
-      if (term.toLowerCase().contains(query.toLowerCase())) {
-        matchQuery.add(term);
-      }
-    }
-    return ListView.builder(
-      itemCount: matchQuery.length,
-      itemBuilder: (context, index) {
-        var result = matchQuery[index];
-        return ListTile(
-          title: Text(
-            result,
-            style: TextStyle(
-              color: Colors.green, // Change the text color of the result
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          tileColor: Colors.white, // Change the background color of the result item
-        );
-      },
-    );
-  }
-
-  @override
-  Widget buildSuggestions(BuildContext context) {
-    List<String> matchQuery = [];
-    for (var term in searchTerms) {
-      if (term.toLowerCase().contains(query.toLowerCase())) {
-        matchQuery.add(term);
-      }
-    }
-    return ListView.builder(
-      itemCount: matchQuery.length,
-      itemBuilder: (context, index) {
-        var result = matchQuery[index];
-        return ListTile(
-          title: Text(
-            result,
-            style: TextStyle(
-              color: Colors.black, // Change the text color of the suggestion
-            ),
-          ),
-          tileColor: Color(0xFFEEE2B3), // Change the background color of the suggestion item
-          onTap: () {
-            close(context, result); // Close search and return the selected result
+            query = suggestion;
+            showResults(context);
           },
         );
       },

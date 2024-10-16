@@ -23,7 +23,9 @@ class _ProfilePageState extends State<GuideProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
+      resizeToAvoidBottomInset: false,
+      body:
+      Container(
         decoration: BoxDecoration(
           image: DecorationImage(
             image: AssetImage('assets/images/AppHS.jpeg'), // Add your background image

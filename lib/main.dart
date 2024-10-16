@@ -8,10 +8,10 @@ import 'guidehome.dart';
 import 'forgot.dart';
 import 'homepage.dart';
 import 'homepagenotlogin.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 import 'package:flutter/material.dart';
 import 'dart:io'; // For handling files
 import 'package:image_picker/image_picker.dart'; // For picking images
-
 import 'profile.dart';
 
 /*wor;d wide changes      */
@@ -39,6 +39,17 @@ class MyApp extends StatelessWidget {
       title: 'Login Page',
       theme: ThemeData(
         primarySwatch: Colors.green,
+      ),
+      builder: (context, widget) => ResponsiveWrapper.builder(
+        ClampingScrollWrapper.builder(context, widget!),
+        maxWidth: 1200,
+        minWidth: 480,
+        defaultScale: true,
+        breakpoints: [
+          ResponsiveBreakpoint.resize(480, name: MOBILE),
+          ResponsiveBreakpoint.autoScale(800, name: TABLET),
+          ResponsiveBreakpoint.autoScale(1000, name: DESKTOP),
+        ],
       ),
       home: LoginPage(),
     );
@@ -85,40 +96,13 @@ class _LoginPageState extends State<LoginPage> {
       );
     }
   }
-
-
-  /*// Function to create a new user
-  Future<void> _createAccount() async {
-    try {
-      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
-        email: _emailController.text,
-        password: _passwordController.text,
-      );
-
-      // Store additional user data in Firestore
-      await _firestore.collection('users').doc(userCredential.user?.uid).set({
-        'email': _emailController.text,
-        'createdAt': FieldValue.serverTimestamp(),
-      });
-
-      // Navigate to another page (optional)
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => AdminLoginPage()),
-      );
-    } catch (e) {
-      print(e.toString());
-      // Show error message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to create account: ${e.toString()}')),
-      );
-    }
-  }
-*/
+//resizeToAvoidBottomInset: false,
+  //SingleChildScrollView(
+  //         physics: BouncingScrollPhysics(),
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
+      resizeToAvoidBottomInset: false,
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
@@ -262,13 +246,33 @@ class _LoginPageState extends State<LoginPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async {
+                          try {
+                            // Sign in anonymously
+                            UserCredential userCredential = await FirebaseAuth.instance.signInAnonymously();
+
+                            // Get the user ID
+                            String userId = userCredential.user?.uid ?? '';
+
+                            // Now you can use userId to navigate to your desired page
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => noHomePage(userId: userId)), // Pass the userId if needed
+                            );
+                          } catch (e) {
+                            // Handle error
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Failed to log in anonymously: ${e.toString()}')),
+                            );
+                          }
+                        },
+                        /*onPressed: () {
                           // Skip action
                           Navigator.push(
                             context,
                             MaterialPageRoute(builder: (context) => noHomePage()),
                           );
-                        },
+                        },*/
                         child: Text('SKIP',
                             style: TextStyle(color: Color(0xFF255A39),fontSize: 25.00)
                         ),
@@ -305,6 +309,204 @@ class _LoginPageState extends State<LoginPage> {
   }
 }
 
+  class AdminLoginPage extends StatefulWidget {
+  @override
+  _AdminLoginPageState createState() => _AdminLoginPageState();
+  }
+
+  class _AdminLoginPageState extends State<AdminLoginPage> {
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  Future<void> _login() async {
+  try {
+  UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+  email: _usernameController.text,
+  password: _passwordController.text,
+  );
+  DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('guides').doc(userCredential.user?.uid).get();
+
+  if (userDoc.exists) {
+    // User is a guide
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => GHomePage(selectedSearch:null, userId: userCredential.user?.uid ?? '')),
+    );
+  }else {
+    // User not found
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('User not found')));
+  }
+  // If successful, navigate to the guide home page
+
+  } catch (e) {
+  print(e.toString());
+  // Show error message
+  ScaffoldMessenger.of(context).showSnackBar(
+  SnackBar(content: Text('Failed to login: ${e.toString()}')),
+  );
+  }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+  return Scaffold(
+    resizeToAvoidBottomInset: false,
+  appBar: AppBar(
+  title: Text('Guide Login', style: TextStyle(color: Color(0xFFEEE2B3))),
+  backgroundColor: Color(0xFF255A39),
+  ),
+  body: Container(
+  decoration: BoxDecoration(
+  image: DecorationImage(
+  image: AssetImage('assets/images/AppHS.jpeg'),
+  fit: BoxFit.cover,
+  ),
+  ),
+  child: Padding(
+  padding: const EdgeInsets.all(12.0),
+  child: Column(
+  mainAxisAlignment: MainAxisAlignment.center,
+  children: [
+  ClipRRect(
+  borderRadius: BorderRadius.circular(100),
+  child: Image.asset(
+  'assets/images/Traventurelogo1.png',
+  height: 200,
+  width: 200,
+  fit: BoxFit.cover,
+  ),
+  ),
+  SizedBox(height: 0),
+  Container(
+  padding: EdgeInsets.all(35),
+  decoration: BoxDecoration(
+  color: Color(0xFF235537).withOpacity(0.9),
+  borderRadius: BorderRadius.circular(25),
+  ),
+  child: Column(
+  mainAxisAlignment: MainAxisAlignment.center,
+  children: [
+  Row(
+  children: [
+  Text('Id:', style: TextStyle(color: Color(0xFFF3E5B5))),
+  Expanded(
+  child: TextField(
+  controller: _usernameController,
+  decoration: InputDecoration(
+  labelText: 'Username',
+  border: OutlineInputBorder(),
+  filled: true,
+  fillColor: Color(0xFFDCD0A1),
+  ),
+  ),
+  ),
+  ],
+  ),
+  SizedBox(height: 16),
+  Row(
+  children: [
+  Align(
+  alignment: Alignment.centerLeft,
+  child: Text('pwd', style: TextStyle(color: Color(0xFFF3E5B5))),
+  ),
+  Expanded(
+  child: TextField(
+  controller: _passwordController,
+  decoration: InputDecoration(
+  labelText: 'Password',
+  labelStyle: TextStyle(color: Colors.black),
+  border: OutlineInputBorder(),
+  filled: true,
+  fillColor: Color(0xFFDCD0A1),
+  ),
+  obscureText: true,
+  ),
+  ),
+  ],
+  ),
+  SizedBox(height: 8),
+  Align(
+  alignment: Alignment.centerRight,
+  child: TextButton(
+  onPressed: () {
+  // Forgot password action
+  },
+  child: Text(
+  'forget password?',
+  style: TextStyle(color: Color(0xFFEAE0AE),
+  fontStyle: FontStyle.italic,
+  fontWeight: FontWeight.bold,
+  fontSize: 20),
+  ),
+  ),
+  ),
+  SizedBox(height: 8),
+  ElevatedButton(
+  onPressed: _login,
+  child: Text('LOG IN', style: TextStyle(color: Color(0xFF235537))),
+  style: ElevatedButton.styleFrom(
+  padding: EdgeInsets.symmetric(vertical: 12, horizontal: 36),
+  backgroundColor: Color(0xFFF3E5B5),
+  ),
+  ),
+  SizedBox(height: 16),
+  TextButton(
+  onPressed: () {
+  // Create account action
+  Navigator.push(
+  context,
+  MaterialPageRoute(builder: (context) => GuideProfilePage()),
+  );
+  },
+  child: Text(
+  "don't have account? create account",
+  style: TextStyle(color: Color(0xFFDACEA0), fontSize: 20),
+  ),
+  ),
+  ],
+  ),
+  ),
+  ],
+  ),
+  ),
+  ),
+  );
+  }
+  }
+
+
+/*// Function to create a new user
+  Future<void> _createAccount() async {
+    try {
+      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
+
+      // Store additional user data in Firestore
+      await _firestore.collection('users').doc(userCredential.user?.uid).set({
+        'email': _emailController.text,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
+      // Navigate to another page (optional)
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => AdminLoginPage()),
+      );
+    } catch (e) {
+      print(e.toString());
+      // Show error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to create account: ${e.toString()}')),
+      );
+    }
+  }
+*/
+
+
 /*
 class AdminLoginPage extends StatefulWidget {
   @override
@@ -335,7 +537,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
     }
   }*/
 
-  /*Future<void> _login(String email,String password) async {
+/*Future<void> _login(String email,String password) async {
     try {
      await _firestore.collection('guides').add({
 
@@ -353,7 +555,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
       // You can show a Snackbar or Dialog for user feedback
     }
   }*/
-  /*Future<void> addGuide(String email, String password) async {
+/*Future<void> addGuide(String email, String password) async {
     await _firestore.collection('guides').add({
       'email': email,
       'password': password, // Remember to hash the password in production
@@ -828,169 +1030,3 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
             )));
   }
 }*/
-
-  class AdminLoginPage extends StatefulWidget {
-  @override
-  _AdminLoginPageState createState() => _AdminLoginPageState();
-  }
-
-  class _AdminLoginPageState extends State<AdminLoginPage> {
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
-  Future<void> _login() async {
-  try {
-  UserCredential userCredential = await _auth.signInWithEmailAndPassword(
-  email: _usernameController.text,
-  password: _passwordController.text,
-  );
-  DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('guides').doc(userCredential.user?.uid).get();
-
-  if (userDoc.exists) {
-    // User is a guide
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => GHomePage(selectedSearch:null, userId: userCredential.user?.uid ?? '')),
-    );
-  }else {
-    // User not found
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('User not found')));
-  }
-  // If successful, navigate to the guide home page
-
-  } catch (e) {
-  print(e.toString());
-  // Show error message
-  ScaffoldMessenger.of(context).showSnackBar(
-  SnackBar(content: Text('Failed to login: ${e.toString()}')),
-  );
-  }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-  return Scaffold(
-  appBar: AppBar(
-  title: Text('Guide Login', style: TextStyle(color: Color(0xFFEEE2B3))),
-  backgroundColor: Color(0xFF255A39),
-  ),
-  body: Container(
-  decoration: BoxDecoration(
-  image: DecorationImage(
-  image: AssetImage('assets/images/AppHS.jpeg'),
-  fit: BoxFit.cover,
-  ),
-  ),
-  child: Padding(
-  padding: const EdgeInsets.all(12.0),
-  child: Column(
-  mainAxisAlignment: MainAxisAlignment.center,
-  children: [
-  ClipRRect(
-  borderRadius: BorderRadius.circular(100),
-  child: Image.asset(
-  'assets/images/Traventurelogo1.png',
-  height: 200,
-  width: 200,
-  fit: BoxFit.cover,
-  ),
-  ),
-  SizedBox(height: 0),
-  Container(
-  padding: EdgeInsets.all(35),
-  decoration: BoxDecoration(
-  color: Color(0xFF235537).withOpacity(0.9),
-  borderRadius: BorderRadius.circular(25),
-  ),
-  child: Column(
-  mainAxisAlignment: MainAxisAlignment.center,
-  children: [
-  Row(
-  children: [
-  Text('Id:', style: TextStyle(color: Color(0xFFF3E5B5))),
-  Expanded(
-  child: TextField(
-  controller: _usernameController,
-  decoration: InputDecoration(
-  labelText: 'Username',
-  border: OutlineInputBorder(),
-  filled: true,
-  fillColor: Color(0xFFDCD0A1),
-  ),
-  ),
-  ),
-  ],
-  ),
-  SizedBox(height: 16),
-  Row(
-  children: [
-  Align(
-  alignment: Alignment.centerLeft,
-  child: Text('pwd', style: TextStyle(color: Color(0xFFF3E5B5))),
-  ),
-  Expanded(
-  child: TextField(
-  controller: _passwordController,
-  decoration: InputDecoration(
-  labelText: 'Password',
-  labelStyle: TextStyle(color: Colors.black),
-  border: OutlineInputBorder(),
-  filled: true,
-  fillColor: Color(0xFFDCD0A1),
-  ),
-  obscureText: true,
-  ),
-  ),
-  ],
-  ),
-  SizedBox(height: 8),
-  Align(
-  alignment: Alignment.centerRight,
-  child: TextButton(
-  onPressed: () {
-  // Forgot password action
-  },
-  child: Text(
-  'forget password?',
-  style: TextStyle(color: Color(0xFFEAE0AE),
-  fontStyle: FontStyle.italic,
-  fontWeight: FontWeight.bold,
-  fontSize: 20),
-  ),
-  ),
-  ),
-  SizedBox(height: 8),
-  ElevatedButton(
-  onPressed: _login,
-  child: Text('LOG IN', style: TextStyle(color: Color(0xFF235537))),
-  style: ElevatedButton.styleFrom(
-  padding: EdgeInsets.symmetric(vertical: 12, horizontal: 36),
-  backgroundColor: Color(0xFFF3E5B5),
-  ),
-  ),
-  SizedBox(height: 16),
-  TextButton(
-  onPressed: () {
-  // Create account action
-  Navigator.push(
-  context,
-  MaterialPageRoute(builder: (context) => GuideProfilePage()),
-  );
-  },
-  child: Text(
-  "don't have account? create account",
-  style: TextStyle(color: Color(0xFFDACEA0), fontSize: 20),
-  ),
-  ),
-  ],
-  ),
-  ),
-  ],
-  ),
-  ),
-  ),
-  );
-  }
-  }

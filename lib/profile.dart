@@ -297,7 +297,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     SizedBox(height: 20),
                                     _buildDetailRow(Icons.person, data['name'] ?? 'No name'),
                                     _buildDetailRow(Icons.phone, data['phone'] ?? 'No phone'),
-                                    _buildDetailRow(Icons.perm_identity, data['aid'] ?? 'No AID'),
+                                    _buildDetailRow(Icons.perm_identity, data['aadhaar'] ?? 'No AID'),
                                     _buildDetailRow(Icons.location_on, data['address'] ?? 'No address'),
                                     _buildDetailRow(Icons.email, data['email'] ?? 'No email'),
                                     Spacer(),

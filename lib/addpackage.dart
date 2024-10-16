@@ -61,6 +61,7 @@ class _AddPackagePageState extends State<AddPackagePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text('Add Package'),
         backgroundColor: Color(0xFF4D8C53),

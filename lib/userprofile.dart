@@ -21,6 +21,7 @@ class _ProfilePageState extends State<UserProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         leading: IconButton(onPressed: () {
           Navigator.of (context).pop();
