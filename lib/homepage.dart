@@ -698,7 +698,7 @@ import 'package_detail.dart';
 import 'helpdesk.dart';
 class HomePage extends StatefulWidget {
   final String? selectedSearch;
-  final String userId;
+  final String? userId;
   HomePage({this.selectedSearch,required this.userId});
 
   @override
@@ -828,7 +828,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                     onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => historys()));
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => HistoryScreen(userId:  FirebaseAuth.instance.currentUser?.uid)));
                     },
                   ),
                   ListTile(
@@ -838,7 +838,7 @@ class _HomePageState extends State<HomePage> {
                         fontSize: 30,
                         fontWeight: FontWeight.w500,),),
                     onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => FeedbackScreen()));
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => FeedbackScreen(userId:  FirebaseAuth.instance.currentUser?.uid)));
                     },
                   ),
                   ListTile(
