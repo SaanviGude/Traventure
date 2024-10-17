@@ -6,7 +6,7 @@ class GProfilePage extends StatefulWidget {
   final String? userId; // Pass the user ID to the page
 
   GProfilePage({required this.userId});
-//selectedSearch:null, userId: userCredential.user?.uid ?? ''
+
   @override
   _ProfilePageState createState() => _ProfilePageState();
 }
@@ -17,7 +17,6 @@ class _ProfilePageState extends State<GProfilePage> {
   @override
   void initState() {
     super.initState();
-    //userData = fetchUserData(widget.userId);
     if (widget.userId != null) {
       userData = fetchUserData(widget.userId!);
     } else {
@@ -97,8 +96,8 @@ class _ProfilePageState extends State<GProfilePage> {
                             } else {
                               var data = snapshot.data!;
                               return Container(
-                                width: 350,
-                                height: 600,
+                                width: MediaQuery.of(context).size.width * 0.8,
+                                height: MediaQuery.of(context).size.height * 0.6,
                                 decoration: BoxDecoration(
                                   color: Colors.amber[100],
                                   borderRadius: BorderRadius.circular(20),
@@ -106,18 +105,24 @@ class _ProfilePageState extends State<GProfilePage> {
                                 child: Column(
                                   children: [
                                     SizedBox(height: 10),
+                                    // Display profile image if available
                                     CircleAvatar(
                                       radius: 40,
                                       backgroundColor: Colors.grey[300],
-                                      child: Icon(
+                                      backgroundImage: data['imageUrl'] != null && data['imageUrl'] != ""
+                                          ? NetworkImage(data['imageUrl']) // Display profile image
+                                          : null,
+                                      child: data['imageUrl'] == null || data['imageUrl'] == ""
+                                          ? Icon(
                                         Icons.person,
                                         size: 50,
                                         color: Colors.black,
-                                      ),
+                                      )
+                                          : null, // Show default icon if no image
                                     ),
                                     SizedBox(height: 10),
                                     Text(
-                                      'USER-ID: ${widget.userId}',
+                                      'GUIDE-ID: ${widget.userId}',
                                       style: TextStyle(
                                         fontSize: 16,
                                         fontFamily: 'Arial',
@@ -144,9 +149,9 @@ class _ProfilePageState extends State<GProfilePage> {
                                     ElevatedButton(
                                       onPressed: () {
                                         Navigator.of(context).push(
-                                            MaterialPageRoute(
-                                              builder: (context) => EditGuideProfile(userId: widget.userId),
-                                            ),
+                                          MaterialPageRoute(
+                                            builder: (context) => EditGuideProfile(userId: widget.userId),
+                                          ),
                                         );
                                       },
                                       style: ElevatedButton.styleFrom(

@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+//import 'package:flutter_basics/extra/full%20test/guideprofile.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+
 import 'gprofile.dart';
 
 class EditGuideProfile extends StatefulWidget {
@@ -21,6 +26,9 @@ class _EditProfileState extends State<EditGuideProfile> {
   TextEditingController aadhaarController = TextEditingController();
   TextEditingController addressController = TextEditingController();
   TextEditingController emailController = TextEditingController();
+
+  File? _selectedImage;
+  String? _imageUrl; // Store the image URL
 
   @override
   void initState() {
@@ -47,6 +55,7 @@ class _EditProfileState extends State<EditGuideProfile> {
         aadhaarController.text = data['aadhaar'] ?? '';
         addressController.text = data['address'] ?? '';
         emailController.text = data['email'] ?? '';
+        _imageUrl = data['imageUrl']; // Set the image URL
         return data;
       } else {
         return null;
@@ -61,22 +70,29 @@ class _EditProfileState extends State<EditGuideProfile> {
   Future<void> saveUserData() async {
     if (_formKey.currentState!.validate()) {
       try {
-        await FirebaseFirestore.instance
-            .collection('guides')
-            .doc(widget.userId)
-            .update({
+        Map<String, dynamic> updatedData = {
           'name': nameController.text,
           'phone': phoneController.text,
           'aadhaar': aadhaarController.text,
           'address': addressController.text,
           'email': emailController.text,
-        });
+        };
+
+        if (_selectedImage != null) {
+          String imageUrl = await _uploadImageToStorage(widget.userId!);
+          updatedData['imageUrl'] = imageUrl;
+        }
+
+        await FirebaseFirestore.instance
+            .collection('guides')
+            .doc(widget.userId)
+            .update(updatedData);
+
         // Show confirmation dialog
         showDialog(
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              //title: Text('Success'),
               content: Text('Your details have been saved.'),
               actions: [
                 TextButton(
@@ -95,6 +111,25 @@ class _EditProfileState extends State<EditGuideProfile> {
     }
   }
 
+  // Image picker to select the image from gallery or camera
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedImage = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedImage != null) {
+      setState(() {
+        _selectedImage = File(pickedImage.path);
+      });
+    }
+  }
+
+  // Upload image to Firebase Storage and get the download URL
+  Future<String> _uploadImageToStorage(String userId) async {
+    Reference ref = FirebaseStorage.instance.ref().child('profile_images/$userId');
+    await ref.putFile(_selectedImage!);
+    return await ref.getDownloadURL();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -102,14 +137,12 @@ class _EditProfileState extends State<EditGuideProfile> {
         resizeToAvoidBottomInset: false,
         body: Stack(
           children: [
-            // Background Image
             Positioned.fill(
               child: Image.asset(
                 'assets/images/AppHS.jpeg', // Path to your image
-                fit: BoxFit.cover, // Make the image cover the entire background
+                fit: BoxFit.cover,
               ),
             ),
-            // Your content on top of the background
             Padding(
               padding: const EdgeInsets.all(0.0),
               child: Column(
@@ -141,17 +174,15 @@ class _EditProfileState extends State<EditGuideProfile> {
                           future: userData,
                           builder: (context, snapshot) {
                             if (snapshot.connectionState == ConnectionState.waiting) {
-                              return CircularProgressIndicator(); // Show loader
+                              return CircularProgressIndicator();
                             } else if (snapshot.hasError) {
                               return Text('Error fetching data');
                             } else if (!snapshot.hasData || snapshot.data == null) {
                               return Text('No user data found');
                             } else {
                               return Container(
-                                width: MediaQuery.of(context).size.width * 0.8, // 80% of screen width
-                                height: MediaQuery.of(context).size.height * 0.6, // 60% of screen height
-                                /*width: 350,
-                                height: 600,*/
+                                width: MediaQuery.of(context).size.width * 0.8,
+                                height: MediaQuery.of(context).size.height * 0.6,
                                 decoration: BoxDecoration(
                                   color: Colors.amber[100],
                                   borderRadius: BorderRadius.circular(20),
@@ -161,18 +192,24 @@ class _EditProfileState extends State<EditGuideProfile> {
                                   child: Column(
                                     children: [
                                       SizedBox(height: 10),
-                                      CircleAvatar(
-                                        radius: 40,
-                                        backgroundColor: Colors.grey[300],
-                                        child: Icon(
-                                          Icons.person,
-                                          size: 50,
-                                          color: Colors.black,
+                                      GestureDetector(
+                                        onTap: _pickImage,
+                                        child: CircleAvatar(
+                                          radius: 40,
+                                          backgroundImage: _selectedImage != null
+                                              ? FileImage(_selectedImage!)
+                                              : _imageUrl != null
+                                              ? NetworkImage(_imageUrl!)
+                                              : null,
+                                          child: _selectedImage == null && _imageUrl == null
+                                              ? Icon(Icons.person, size: 50, color: Colors.black)
+                                              : null,
+                                          backgroundColor: Colors.grey[300],
                                         ),
                                       ),
                                       SizedBox(height: 10),
                                       Text(
-                                        'USER-ID: ${widget.userId}',
+                                        'GUIDE-ID: ${widget.userId}',
                                         style: TextStyle(
                                           fontSize: 16,
                                           fontFamily: 'Arial',
@@ -190,7 +227,7 @@ class _EditProfileState extends State<EditGuideProfile> {
                                         onPressed: () async {
                                           bool confirm = await _showConfirmationDialog(context);
                                           if (confirm) {
-                                            saveUserData(); // Save user data if confirmed
+                                            saveUserData();
                                             Navigator.of(context).pushReplacement(
                                               MaterialPageRoute(
                                                 builder: (context) => GProfilePage(userId: widget.userId),
@@ -199,7 +236,7 @@ class _EditProfileState extends State<EditGuideProfile> {
                                           }
                                         },
                                         style: ElevatedButton.styleFrom(
-                                          backgroundColor: Color(0xFF315F3C), // Button color
+                                          backgroundColor: Color(0xFF315F3C),
                                           padding: EdgeInsets.symmetric(horizontal: 40, vertical: 10),
                                           shape: RoundedRectangleBorder(
                                             borderRadius: BorderRadius.circular(20),
@@ -234,7 +271,6 @@ class _EditProfileState extends State<EditGuideProfile> {
     );
   }
 
-  // Widget to build each editable row
   Widget _buildEditableRow(IconData icon, String label, TextEditingController controller) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 20.0),
@@ -266,7 +302,6 @@ class _EditProfileState extends State<EditGuideProfile> {
     );
   }
 
-  // Confirmation dialog before saving changes
   Future<bool> _showConfirmationDialog(BuildContext context) async {
     return await showDialog(
       context: context,
@@ -278,13 +313,13 @@ class _EditProfileState extends State<EditGuideProfile> {
             TextButton(
               child: Text('Cancel'),
               onPressed: () {
-                Navigator.of(context).pop(false); // Don't save
+                Navigator.of(context).pop(false);
               },
             ),
             TextButton(
               child: Text('Save'),
               onPressed: () {
-                Navigator.of(context).pop(true); // Save
+                Navigator.of(context).pop(true);
               },
             ),
           ],

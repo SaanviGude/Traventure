@@ -93,8 +93,8 @@ class _ProfilePageState extends State<ProfilePage> {
                             } else {
                               var data = snapshot.data!;
                               return Container(
-                                width: 350,
-                                height: 600,
+                                width: MediaQuery.of(context).size.width * 0.8,
+                                height: MediaQuery.of(context).size.height * 0.6,
                                 decoration: BoxDecoration(
                                   color: Colors.amber[100],
                                   borderRadius: BorderRadius.circular(20),
@@ -102,14 +102,20 @@ class _ProfilePageState extends State<ProfilePage> {
                                 child: Column(
                                   children: [
                                     SizedBox(height: 10),
+                                    // Profile Image
                                     CircleAvatar(
                                       radius: 40,
+                                      backgroundImage: data['imageUrl'] != null
+                                          ? NetworkImage(data['imageUrl']) // Use the fetched image URL
+                                          : null,
                                       backgroundColor: Colors.grey[300],
-                                      child: Icon(
+                                      child: data['imageUrl'] == null
+                                          ? Icon(
                                         Icons.person,
                                         size: 50,
                                         color: Colors.black,
-                                      ),
+                                      )
+                                          : null,
                                     ),
                                     SizedBox(height: 10),
                                     Text(
@@ -211,4 +217,3 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 }
-

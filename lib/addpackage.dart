@@ -270,10 +270,10 @@ class _AddPackagePageState extends State<AddPackagePage> {
 
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:file_picker/file_picker.dart';
-import 'dart:typed_data'; // To handle image data as bytes
-import 'dart:convert';
+import 'dart:typed_data';
+
 class AddPackagePage extends StatefulWidget {
   @override
   _AddPackagePageState createState() => _AddPackagePageState();
@@ -287,55 +287,83 @@ class _AddPackagePageState extends State<AddPackagePage> {
   final TextEditingController _descriptionController = TextEditingController();
 
   Uint8List? _imageBytes; // To store the selected image bytes
-  final ImagePicker _picker = ImagePicker();
-/*
+  final ImagePicker _picker = ImagePicker(); // For picking the image
+
   Future<void> _pickImage() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
-      // For web, read the file as a blob and create a URL
-      final reader = html.FileReader();
-      final file = html.File([pickedFile.readAsBytes()],pickedFile.path);
-      reader.readAsArrayBuffer(file);
-      reader.onLoadEnd.listen((event) {
-        setState(() {
-          // Convert the result to bytes
-          _imageBytes = reader.result as Uint8List;
-        });
+      // Read image bytes asynchronously
+      final bytes = await pickedFile.readAsBytes();
+      setState(() {
+        _imageBytes = bytes; // Store the bytes in _imageBytes
       });
     }
-    else {
-      // Handle the case when no file was picked
-      print("No image selected.");
-    }
-  }*/
-  Future<void> handleFile() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles();
-    if (result != null) {
-      // Your mobile-specific file handling code
+  }
+
+  Future<String?> _uploadImageToStorage() async {
+    if (_imageBytes == null) return null;
+
+    try {
+      String fileName = '${DateTime.now().millisecondsSinceEpoch}.png';
+      Reference storageRef = FirebaseStorage.instance.ref().child('packages/$fileName');
+      UploadTask uploadTask = storageRef.putData(_imageBytes!);
+
+      TaskSnapshot snapshot = await uploadTask;
+      return await snapshot.ref.getDownloadURL();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to upload image: $e')),
+      );
+      return null;
     }
   }
+
   Future<void> _addPackage() async {
     double? price = double.tryParse(_priceController.text);
-    //double? price = double.tryParse(_priceController.text);
+
     if (price == null) {
-      // Show an error if the price is invalid
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Please enter a valid price.')),
       );
       return;
     }
 
+    // Upload the image to Firebase Storage and get the download URL
+    String? imageUrl = await _uploadImageToStorage();
 
-    await FirebaseFirestore.instance.collection('packages').add({
+    // Add package details to Firestore and get the document reference
+    DocumentReference docRef = await FirebaseFirestore.instance.collection('packages').add({
       'name': _nameController.text,
       'price': price,
       'days': _daysController.text,
       'rating': _ratingController.text,
       'description': _descriptionController.text,
-      // If you need to store the image, convert it to base64 and save it.
-      'image': _imageBytes != null ? 'data:image/png;base64,' + base64Encode(_imageBytes!) : null,
+      'image_url': imageUrl, // Store the image URL
     });
-    Navigator.pop(context); // Navigate back after adding
+
+    // Pass the package ID to the success dialog or next page
+    String packageId = docRef.id;
+
+    _showSuccessDialog(packageId); // Pass the ID to the success dialog
+  }
+
+  void _showSuccessDialog(String packageId) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Success'),
+        content: Text('Package details have been saved successfully!'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context); // Close the dialog
+              Navigator.pop(context, packageId); // Navigate back with packageId
+            },
+            child: Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -363,7 +391,7 @@ class _AddPackagePageState extends State<AddPackagePage> {
             _buildTextField(_descriptionController, 'Description'),
             SizedBox(height: 20),
             GestureDetector(
-              onTap: handleFile, // Open image picker when tapped
+              onTap: _pickImage, // Open image picker when tapped
               child: Container(
                 width: double.infinity,
                 height: 200,
@@ -394,7 +422,7 @@ class _AddPackagePageState extends State<AddPackagePage> {
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String label,{bool isNumeric = false}) {
+  Widget _buildTextField(TextEditingController controller, String label, {bool isNumeric = false}) {
     return Container(
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -409,8 +437,5 @@ class _AddPackagePageState extends State<AddPackagePage> {
     );
   }
 }
-
-
-
 
 

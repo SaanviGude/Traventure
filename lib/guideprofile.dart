@@ -1,12 +1,13 @@
+import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart'; // Import Firebase Storage
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart'; // Import image picker
 import 'main.dart';
-import 'homepage.dart';
 import 'guidehome.dart';
+
 class GuideProfilePage extends StatefulWidget {
- // final String? userId;
-//  GuideProfilePage({required this.userId});
   @override
   _ProfilePageState createState() => _ProfilePageState();
 }
@@ -20,12 +21,37 @@ class _ProfilePageState extends State<GuideProfilePage> {
   TextEditingController _passwordController = TextEditingController();
   bool isUser = true;
 
+  File? _profileImage; // Store picked image
+  final ImagePicker _picker = ImagePicker(); // Image picker instance
+
+  Future<void> _pickImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _profileImage = File(pickedFile.path);
+      });
+    }
+  }
+
+  Future<String?> _uploadImage(File imageFile, String userId) async {
+    try {
+      final ref = FirebaseStorage.instance
+          .ref()
+          .child('guide_profile_images')
+          .child('$userId.jpg');
+      await ref.putFile(imageFile);
+      return await ref.getDownloadURL();
+    } catch (e) {
+      print('Error uploading image: $e');
+      return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      body:
-      Container(
+      body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
             image: AssetImage('assets/images/AppHS.jpeg'), // Add your background image
@@ -39,20 +65,20 @@ class _ProfilePageState extends State<GuideProfilePage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-
                       ElevatedButton(
                         onPressed: () {
                           setState(() {
                             isUser = false;
                           });
                         },
-                        child: Text('GUIDE',style: TextStyle(color: Color(0xFFE4D59F),fontSize:25.00)),
+                        child: Text('GUIDE',
+                            style: TextStyle(color: Color(0xFFE4D59F), fontSize: 25.00)),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: isUser ? Color(0xFF235537) : Color(0xFF4D8C53),
+                          backgroundColor:
+                          isUser ? Color(0xFF235537) : Color(0xFF4D8C53),
                         ),
                       ),
                     ],
@@ -61,11 +87,10 @@ class _ProfilePageState extends State<GuideProfilePage> {
                   CircleAvatar(
                     radius: 50,
                     backgroundColor: Colors.white,
+                    backgroundImage: _profileImage != null ? FileImage(_profileImage!) : null,
                     child: IconButton(
                       icon: Icon(Icons.add),
-                      onPressed: () {
-                        // Image picker logic here
-                      },
+                      onPressed: _pickImage, // Image picker logic
                     ),
                   ),
                   SizedBox(height: 8),
@@ -84,20 +109,15 @@ class _ProfilePageState extends State<GuideProfilePage> {
                               borderRadius: BorderRadius.circular(25),
                             ),
                             child: Column(
-
                               children: [
-
                                 _buildTextField("NAME", _nameController),
                                 _buildTextField("PHONE NO:", _phoneController),
                                 _buildTextField("AADHAR NO:", _aadhaarController),
                                 _buildTextField("ADDRESS:", _addressController, maxLines: 3),
                                 _buildTextField("EMAIL:", _emailController),
                                 _buildTextField("PASSWORD:", _passwordController, isPassword: true),
-
-
                               ],
                             ),
-
                           ),
                         ],
                       ),
@@ -109,91 +129,91 @@ class _ProfilePageState extends State<GuideProfilePage> {
                     children: [
                       ElevatedButton(
                         onPressed: () {
-                          Navigator.of(context).pop()
-                          ;
+                          Navigator.of(context).pop();
                         },
-                        child: Text('BACK',style:TextStyle(color:Color(
-                            0xFF235537) , fontSize: 25.00)),
+                        child: Text('BACK',
+                            style: TextStyle(color: Color(0xFF235537), fontSize: 25.00)),
                         style: ElevatedButton.styleFrom(
-
                           padding: EdgeInsets.symmetric(horizontal: 24),
                           backgroundColor: Color(0xFFE4D59F),
                         ),
                       ),
                       ElevatedButton(
-                          onPressed: () async {
-                            String email = _emailController.text.trim();
-                            String password = _passwordController.text.trim();
+                        onPressed: () async {
+                          String email = _emailController.text.trim();
+                          String password = _passwordController.text.trim();
 
-                            if (email.isEmpty || password.isEmpty) {
+                          if (email.isEmpty || password.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text('Email and password cannot be empty'),
+                            ));
+                            return;
+                          }
 
-                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                content: Text('Email and password cannot be empty'),
-                              ));
-                              return;
+                          try {
+                            // Firebase Authentication
+                            UserCredential userCredential = await FirebaseAuth.instance
+                                .createUserWithEmailAndPassword(email: email, password: password);
+
+                            // Upload profile image if selected
+                            String? imageUrl;
+                            if (_profileImage != null) {
+                              imageUrl = await _uploadImage(
+                                  _profileImage!, userCredential.user?.uid ?? '');
                             }
 
-                            try {
-                              // Firebase Authentication
-                              print('Storing guide: ${_nameController.text.trim()}, ${_phoneController.text.trim()}');
-                              UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-                                email: email,
-                                password: password,
-                              );
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => GHomePage(selectedSearch:null, userId: userCredential.user?.uid ?? '')),
-                              );
+                            // Navigate to guide homepage
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => GHomePage(
+                                  selectedSearch: null,
+                                  userId: userCredential.user?.uid ?? '',
+                                ),
+                              ),
+                            );
 
-                              // Store additional user details in Firestore
-                              await FirebaseFirestore.instance.collection('guides').doc(userCredential.user?.uid).set({
-                                'name': _nameController.text.trim(),
-                                'phone': _phoneController.text.trim(),
-                                'aadhaar': _aadhaarController.text.trim(),
-                                'address': _addressController.text.trim(),
-                                'email': email,
-                                'isUser': isUser,
-                              });
-                              /*if (mounted) {
-                                print('Signed In');
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => HomePage()),
-                                );
-                              }*/
-                            } catch (e) {
-                              print('Error: $e');
-                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                content: Text('Error: ${e.toString()}'),
-                              ));
-                            }
-                          },
-                        child: Text('SIGN UP',style:TextStyle(color:Color( 0xFF235537),fontSize: 25.00)),
+                            // Store additional guide details in Firestore
+                            await FirebaseFirestore.instance
+                                .collection('guides')
+                                .doc(userCredential.user?.uid)
+                                .set({
+                              'name': _nameController.text.trim(),
+                              'phone': _phoneController.text.trim(),
+                              'aadhaar': _aadhaarController.text.trim(),
+                              'address': _addressController.text.trim(),
+                              'email': email,
+                              'imageUrl': imageUrl, // Store the image URL
+                              'isUser': isUser,
+                            });
+                          } catch (e) {
+                            print('Error: $e');
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text('Error: ${e.toString()}'),
+                            ));
+                          }
+                        },
+                        child: Text('SIGN UP',
+                            style: TextStyle(color: Color(0xFF235537), fontSize: 25.00)),
                         style: ElevatedButton.styleFrom(
                           padding: EdgeInsets.symmetric(horizontal: 24),
                           backgroundColor: Color(0xFFDCD0A1),
                           textStyle: TextStyle(color: Color(0xFF235537)),
-              ),
+                        ),
                       ),
                     ],
                   ),
-
                 ],
               ),
             ),
-
-
           ),
-
         ),
       ),
-
     );
-
-
   }
 
-  Widget _buildTextField(String labelText, TextEditingController controller, {bool isPassword = false, int maxLines = 1}) {
+  Widget _buildTextField(String labelText, TextEditingController controller,
+      {bool isPassword = false, int maxLines = 1}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: TextField(

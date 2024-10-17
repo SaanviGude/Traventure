@@ -124,7 +124,7 @@ class noHomePage extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(20.0),
             child: Image.asset(
-              'images/Traventurelogo1.png',
+              'assets/images/Traventurelogo1.png',
               height: 300,
               width: 300,
               fit: BoxFit.cover,

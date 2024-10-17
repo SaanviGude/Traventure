@@ -1173,12 +1173,11 @@ class _PackageDetailPageState extends State<PackageDetailPage> {
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'dart:typed_data'; // To handle image data as bytes
-import 'dart:convert';   // For Base64 encoding and decoding
 import 'book.dart';
+
 class PackageDetailPage extends StatelessWidget {
   final String? userId;
-  final String? image;  // Can be a Base64 string or asset name
+  final String? imageUrl;  // URL of the image stored in Firebase Storage
   final String title;
   final double price;
   final String days;
@@ -1187,7 +1186,7 @@ class PackageDetailPage extends StatelessWidget {
 
   PackageDetailPage({
     required this.userId,
-    required this.image,
+    required this.imageUrl,  // Use imageUrl instead of image
     required this.title,
     required this.price,
     required this.days,
@@ -1197,21 +1196,6 @@ class PackageDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Uint8List? imageData;
-    bool isBase64Image = false;
-
-    // Check if the image is a Base64 string and decode it
-    if (image != null && image!.startsWith('data:image')) {
-      try {
-        String base64String = image!.replaceFirst(RegExp(r'data:image/[^;]+;base64,'), '');
-        imageData = base64Decode(base64String);
-        isBase64Image = true; // Flag that it's a Base64 image
-      } catch (e) {
-        imageData = null;  // If decoding fails, set imageData to null
-        print('Error decoding Base64 image: $e');
-      }
-    }
-
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
@@ -1223,21 +1207,14 @@ class PackageDetailPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Display image: Base64 image, asset image, or a placeholder
-              image != null
-                  ? (isBase64Image
-                  ? Image.memory(
-                imageData!, // Display the decoded image data
+              // Display the image from Firebase Storage or show a placeholder
+              imageUrl != null
+                  ? Image.network(
+                imageUrl!, // Load the image from the URL
                 fit: BoxFit.cover,
                 height: 200, // Set height as needed
                 width: double.infinity, // Make it full width
               )
-                  : Image.asset(
-                image!,  // If not Base64, assume it's an asset image
-                fit: BoxFit.cover,
-                height: 200, // Set height as needed
-                width: double.infinity,
-              ))
                   : Container(
                 height: 200, // Placeholder height
                 color: Colors.grey, // Placeholder background color
@@ -1271,9 +1248,16 @@ class PackageDetailPage extends StatelessWidget {
               Center(
                 child: ElevatedButton(
                   onPressed: () {
-
-                    Navigator.push(context, MaterialPageRoute(
-                        builder: (context) => BookingPage(packageName: title,userId: FirebaseAuth.instance.currentUser?.uid,price:price)));
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => BookingPage(
+                          packageName: title,
+                          userId: FirebaseAuth.instance.currentUser?.uid,
+                          price: price,
+                        ),
+                      ),
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
@@ -1287,10 +1271,8 @@ class PackageDetailPage extends StatelessWidget {
               ),
             ],
           ),
-
         ),
       ),
-
     );
   }
 }

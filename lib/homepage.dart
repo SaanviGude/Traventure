@@ -683,372 +683,6 @@ class TripCard extends StatelessWidget {
     );
   }
 }*/
-
-
-import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_basics/main.dart';
-import 'dart:io'; // For handling files
-import 'package:image_picker/image_picker.dart'; // For picking images
-import 'profile.dart';
-import 'feed.dart';
-import 'history.dart';
-import 'package_detail.dart';
-import 'helpdesk.dart';
-class HomePage extends StatefulWidget {
-  final String? selectedSearch;
-  final String? userId;
-  HomePage({this.selectedSearch,required this.userId});
-
-  @override
-  _HomePageState createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  File? _image; // To store the selected image
-  final picker = ImagePicker();
-
-  // Function to pick image from gallery
-  Future<void> _pickImage() async {
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _image = File(pickedFile.path); // Store the selected image
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-
-
-    return Scaffold(
-      appBar: AppBar(
-        leading: Row(
-          children:[
-
-
-
-            Builder(
-              builder: (context) {
-                return IconButton(
-                  icon: const Icon(Icons.menu), color: Color(0xFFDCD0A1),
-                  onPressed: () {
-                    Scaffold.of(context)
-                        .openDrawer(); // Open the drawer when tapped
-                  },
-                );
-              },
-            ),
-          ],
-        ),
-        backgroundColor: Color(0xFF5E8953),
-        title: Text('Traventure', style: TextStyle(color: Color(0xFFDCD0A1))),
-        actions: <Widget>[
-
-          /* IconButton(
-            onPressed: () async {
-              final result = await showSearch(context: context, delegate: CustomSearchDelegate());
-              if (result != null) {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => HomePage(selectedSearch: result,userId: widget.userId),
-                  ),
-                );
-              }
-            },
-            icon: Icon(Icons.search,size:30),color: Color(0xFFDCD0A1),
-          ),*/
-          IconButton(
-            onPressed: () async {
-              // Fetch the package names before showing the search
-              List<String> packageNames = await _fetchPackageNames();
-
-              // Pass the package names to the search delegate
-              final result = await showSearch(
-                context: context,
-                delegate: CustomSearchDelegate(searchTerms: packageNames),
-              );
-
-              if (result != null) {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => HomePage(selectedSearch: result, userId: widget.userId),
-                  ),
-                );
-              }
-            },
-            icon: Icon(Icons.search, size: 30),
-            color: Color(0xFFDCD0A1),
-          ),
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ProfilePage(userId: FirebaseAuth.instance.currentUser?.uid,)),
-              );
-
-            },
-            icon: const Icon(Icons.account_circle_sharp, size: 30),color: Color(0xFFDCD0A1),
-          ),
-        ],
-      ),
-      drawer: Drawer(
-        backgroundColor: Color(0xFFFBF6DF),
-        child: Column(
-          children: [
-            Expanded(
-              child: ListView(
-                children: [
-                  Center(
-                    child: GestureDetector(
-                      onTap: _pickImage, // Tap to pick an image
-                      child: CircleAvatar(
-                        radius: 60,
-                        backgroundImage: _image != null
-                            ? FileImage(_image!) // Display selected image
-                            : AssetImage('assets/default_profile.png') as ImageProvider, // Default image
-                        child: _image == null
-                            ? Icon(Icons.camera_alt, size: 30, color: Colors.white,)
-                            : null, // Show camera icon if no image
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  ListTile(
-                    leading: Icon(Icons.history, size: 50),
-                    title: Text(
-                      'History',
-                      style: TextStyle(
-                        fontSize: 30,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => HistoryScreen(userId:  FirebaseAuth.instance.currentUser?.uid)));
-                    },
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.feedback_outlined, size: 50),
-                    title: const Text('Feedback',
-                      style: TextStyle(
-                        fontSize: 30,
-                        fontWeight: FontWeight.w500,),),
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => FeedbackScreen(userId:  FirebaseAuth.instance.currentUser?.uid)));
-                    },
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.settings, size: 50),
-                    title: const Text('Settings',
-                      style: TextStyle(
-                        fontSize: 30,
-                        fontWeight: FontWeight.w500,),),
-                    onTap: () {
-                      //Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilePage(userId: FirebaseAuth.instance.currentUser?.uid,)));
-                    },
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.help_center, size: 50),
-                    title: const Text('Help desk',
-                        style: TextStyle(
-                          fontSize: 30,
-                          fontWeight: FontWeight.w500,)),
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => helpdesk()));
-                    },
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.logout_outlined, size: 50),
-                    title: const Text('Log Out',
-                        style: TextStyle(
-                          fontSize: 30,
-                          fontWeight: FontWeight.w500,)),
-                    onTap: () {
-                      _logout(context); // Call the log-out function
-                    },
-                    //  Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilePage()));
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Image.asset(
-                'images/Traventurelogo1.png',
-                height: 300,
-                width: 300,
-                fit: BoxFit.cover,
-              ),
-            ),
-          ],
-        ),
-      ),
-      backgroundColor: Color(0xFFDCD0A1),
-      body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: _fetchPackages(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('No packages found.'));
-          }
-          final tripPackages = snapshot.data!;
-          final filteredPackages = widget.selectedSearch != null
-              ?
-          tripPackages.where((package) =>
-              package['name']!.toLowerCase().contains(
-                  widget.selectedSearch!.toLowerCase()))
-              .toList()
-              : tripPackages;
-
-          return Padding(
-
-            padding: const EdgeInsets.all(12.0),
-            child: GridView.builder(
-
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 0.75,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-              ),
-
-              itemCount: filteredPackages.length,
-              itemBuilder: (context, index) {
-                var trip = filteredPackages[index];
-                return TripCard(
-                  image: trip['image'] ?? 'https://via.placeholder.com/150',  // Default image if null
-                  title: trip['name'] ?? 'Unknown',                            // Default name if null
-                  price: trip['price'] != null ? trip['price'] : 0,                              // Default price if null
-                  days: trip['days'] ?? '0',                                  // Default days if null
-                  rating: trip['rating'] ?? '0',                              // Default rating if null
-                  description: trip['description'] ?? 'No description available',
-                );// Default description if null
-              },
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-class TripCard extends StatelessWidget {
-  final String image;
-  final String title;
-  final double price;
-  final String days;
-  final String rating;
-  final String description;
-
-  TripCard({
-    required this.image,
-    required this.title,
-    required this.price,
-    required this.days,
-    required this.rating,
-    required this.description
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        // Navigate to package detail page on tap
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => PackageDetailPage(
-              userId:FirebaseAuth.instance.currentUser?.uid,
-              image: image,
-              title: title,
-              price: price,
-              days: days,
-              rating: rating,
-              description: description,
-
-            ),
-          ),
-        );
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(15),
-          color: Color(0xFFEFEFEE),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 6,
-              spreadRadius: 2,
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
-              child: Image.network(
-                'https://via.placeholder.com/150',
-                fit: BoxFit.cover,
-                height: 120,
-                width: double.infinity,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                  SizedBox(height: 5),
-                  Text(
-                    price.toString(),
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  SizedBox(height: 5),
-                  Text(
-                    days,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Color(0xFF000000),
-                    ),
-                  ),
-                  SizedBox(height: 5),
-                  Row(
-                    children: [
-                      Icon(Icons.star, color: Colors.amber, size: 16),
-                      SizedBox(width: 5),
-                      Text(
-                        rating,
-                        style: TextStyle(fontSize: 12),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 /*
 class CustomSearchDelegate extends SearchDelegate {
   List<String> searchTerms = [
@@ -1158,6 +792,395 @@ class CustomSearchDelegate extends SearchDelegate {
     );
   }
 }*/
+
+import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_basics/main.dart';
+import 'dart:io'; // For handling files
+import 'package:image_picker/image_picker.dart'; // For picking images
+import 'profile.dart';
+import 'feed.dart';
+import 'history.dart';
+import 'package_detail.dart';
+import 'helpdesk.dart';
+class HomePage extends StatefulWidget {
+  final String? selectedSearch;
+  final String? userId;
+  HomePage({this.selectedSearch,required this.userId});
+
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  File? _image; // To store the selected image
+  final picker = ImagePicker();
+
+  // Function to pick image from gallery
+  Future<void> _pickImage() async {
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path); // Store the selected image
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        leading: Row(
+          children:[
+            Builder(
+              builder: (context) {
+                return IconButton(
+                  icon: const Icon(Icons.menu), color: Color(0xFFDCD0A1),
+                  onPressed: () {
+                    Scaffold.of(context)
+                        .openDrawer(); // Open the drawer when tapped
+                  },
+                );
+              },
+            ),
+          ],
+        ),
+        backgroundColor: Color(0xFF5E8953),
+        title: Text('Traventure', style: TextStyle(color: Color(0xFFDCD0A1))),
+        actions: <Widget>[
+
+          /* IconButton(
+            onPressed: () async {
+              final result = await showSearch(context: context, delegate: CustomSearchDelegate());
+              if (result != null) {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => HomePage(selectedSearch: result,userId: widget.userId),
+                  ),
+                );
+              }
+            },
+            icon: Icon(Icons.search,size:30),color: Color(0xFFDCD0A1),
+          ),*/
+          IconButton(
+            onPressed: () async {
+              // Fetch the package names before showing the search
+              List<String> packageNames = await _fetchPackageNames();
+
+              // Pass the package names to the search delegate
+              final result = await showSearch(
+                context: context,
+                delegate: CustomSearchDelegate(searchTerms: packageNames),
+              );
+
+              if (result != null) {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => HomePage(selectedSearch: result, userId: widget.userId),
+                  ),
+                );
+              }
+            },
+            icon: Icon(Icons.search, size: 30),
+            color: Color(0xFFDCD0A1),
+          ),
+          IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ProfilePage(userId: FirebaseAuth.instance.currentUser?.uid,)),
+              );
+
+            },
+            icon: const Icon(Icons.account_circle_sharp, size: 30),color: Color(0xFFDCD0A1),
+          ),
+        ],
+      ),
+      drawer: Drawer(
+        backgroundColor: Color(0xFFFBF6DF),
+        child: Column(
+          children: [
+            // User Profile Section
+            SizedBox(height: 20),
+            Container(
+              padding: EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: 30,
+                    backgroundImage: AssetImage('assets/images/U.png'),
+                    /*backgroundImage: _image != null
+                        ? FileImage(_image!) as ImageProvider
+                        : FirebaseAuth.instance.currentUser?.photoURL != null
+                        ? NetworkImage(FirebaseAuth.instance.currentUser!.photoURL!)
+                        : const NetworkImage('https://via.placeholder.com/150'),*/
+                  ),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'User',
+                          //FirebaseAuth.instance.currentUser?.displayName ?? 'User', // Display user name
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          FirebaseAuth.instance.currentUser?.email ?? 'Email not available', // Display user email
+                          style: TextStyle(fontSize: 14),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 8),
+            Divider(), // Optional divider line
+            Expanded(
+              child: ListView(
+                children: [
+                  //SizedBox(height: 20),
+                  ListTile(
+                    leading: Icon(Icons.history, size: 50),
+                    title: Text(
+                      'History',
+                      style: TextStyle(
+                        fontSize: 30,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => HistoryScreen(userId:  FirebaseAuth.instance.currentUser?.uid)));
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.feedback_outlined, size: 50),
+                    title: const Text('Feedback',
+                      style: TextStyle(
+                        fontSize: 30,
+                        fontWeight: FontWeight.w500,),
+                    ),
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => FeedbackScreen(userId:  FirebaseAuth.instance.currentUser?.uid)));
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.settings, size: 50),
+                    title: const Text('Settings',
+                      style: TextStyle(
+                        fontSize: 30,
+                        fontWeight: FontWeight.w500,),
+                    ),
+                    onTap: () {
+                      // Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilePage(userId: FirebaseAuth.instance.currentUser?.uid,)));
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.help_center, size: 50),
+                    title: const Text('Help desk',
+                        style: TextStyle(
+                          fontSize: 30,
+                          fontWeight: FontWeight.w500,)),
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => helpdesk()));
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.logout_outlined, size: 50),
+                    title: const Text('Log Out',
+                        style: TextStyle(
+                          fontSize: 30,
+                          fontWeight: FontWeight.w500,)),
+                    onTap: () {
+                      _logout(context); // Call the log-out function
+                    },
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Image.asset(
+                'assets/images/Traventurelogo1.png',
+                height: 300,
+                width: 300,
+                fit: BoxFit.cover,
+              ),
+            ),
+          ],
+        ),
+      ),
+
+      backgroundColor: Color(0xFFDCD0A1),
+      body: FutureBuilder<List<Map<String, dynamic>>>(
+        future: _fetchPackages(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(child: Text('No packages found.'));
+          }
+          final tripPackages = snapshot.data!;
+          final filteredPackages = widget.selectedSearch != null
+              ?
+          tripPackages.where((package) =>
+              package['name']!.toLowerCase().contains(
+                  widget.selectedSearch!.toLowerCase()))
+              .toList()
+              : tripPackages;
+
+          return Padding(
+
+            padding: const EdgeInsets.all(12.0),
+            child: GridView.builder(
+
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                childAspectRatio: 0.75,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
+              ),
+
+              itemCount: filteredPackages.length,
+              itemBuilder: (context, index) {
+                var trip = filteredPackages[index];
+                return TripCard(
+                  image: trip['image'] ?? 'https://via.placeholder.com/150',  // Default image if null
+                  title: trip['name'] ?? 'Unknown',                            // Default name if null
+                  price: trip['price'] != null ? trip['price'] : 0,                              // Default price if null
+                  days: trip['days'] ?? '0',                                  // Default days if null
+                  rating: trip['rating'] ?? '0',                              // Default rating if null
+                  description: trip['description'] ?? 'No description available',
+                );// Default description if null
+              },
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class TripCard extends StatelessWidget {
+  final String image;
+  final String title;
+  final double price;
+  final String days;
+  final String rating;
+  final String description;
+
+  TripCard({
+    required this.image,
+    required this.title,
+    required this.price,
+    required this.days,
+    required this.rating,
+    required this.description
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        // Navigate to package detail page on tap
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PackageDetailPage(
+              userId:FirebaseAuth.instance.currentUser?.uid,
+              imageUrl: image,
+              title: title,
+              price: price,
+              days: days,
+              rating: rating,
+              description: description,
+
+            ),
+          ),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(15),
+          color: Color(0xFFEFEFEE),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 6,
+              spreadRadius: 2,
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
+              child: Image.network(
+                'https://via.placeholder.com/150',
+                fit: BoxFit.cover,
+                height: 120,
+                width: double.infinity,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  SizedBox(height: 5),
+                  Text(
+                    price.toString(),
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  SizedBox(height: 5),
+                  Text(
+                    days,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF000000),
+                    ),
+                  ),
+                  SizedBox(height: 5),
+                  Row(
+                    children: [
+                      Icon(Icons.star, color: Colors.amber, size: 16),
+                      SizedBox(width: 5),
+                      Text(
+                        rating,
+                        style: TextStyle(fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 
 
 void _logout(BuildContext context) async {
