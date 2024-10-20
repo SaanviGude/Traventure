@@ -814,7 +814,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  File? _image; // To store the selected image
+  /*File? _image; // To store the selected image
   final picker = ImagePicker();
 
   // Function to pick image from gallery
@@ -826,7 +826,7 @@ class _HomePageState extends State<HomePage> {
       });
     }
   }
-
+*/
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -1019,9 +1019,12 @@ class _HomePageState extends State<HomePage> {
       ),
 
       backgroundColor: Color(0xFFDCD0A1),
-      body: FutureBuilder<List<Map<String, dynamic>>>(
+
+      body: /*FutureBuilder<List<Map<String, dynamic>>>(
         future: _fetchPackages(),
+
         builder: (context, snapshot) {
+
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
@@ -1036,6 +1039,25 @@ class _HomePageState extends State<HomePage> {
               package['name']!.toLowerCase().contains(
                   widget.selectedSearch!.toLowerCase()))
               .toList()
+              : tripPackages;*/
+      StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance.collection('packages').snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return Center(child: Text('No packages found.'));
+          }
+
+          final tripPackages = snapshot.data!.docs.map((doc) {
+            return doc.data() as Map<String, dynamic>;
+          }).toList();
+
+          final filteredPackages = widget.selectedSearch != null
+              ? tripPackages.where((package) =>
+              package['name']!.toLowerCase().contains(widget.selectedSearch!.toLowerCase())).toList()
               : tripPackages;
 
           return Padding(
@@ -1054,7 +1076,7 @@ class _HomePageState extends State<HomePage> {
               itemBuilder: (context, index) {
                 var trip = filteredPackages[index];
                 return TripCard(
-                  image: trip['image'] ?? 'https://via.placeholder.com/150',  // Default image if null
+                  image: trip['image'] /*?? 'https://via.placeholder.com/150'*/,  // Default image if null
                   title: trip['name'] ?? 'Unknown',                            // Default name if null
                   price: trip['price'] != null ? trip['price'] : 0,                              // Default price if null
                   days: trip['days'] ?? '0',                                  // Default days if null
@@ -1071,6 +1093,129 @@ class _HomePageState extends State<HomePage> {
 }
 
 class TripCard extends StatelessWidget {
+  final String image;
+  final String title;
+  final double price;
+  final String days;
+  final String rating;
+  final String description;
+
+  TripCard({
+    required this.image,
+    required this.title,
+    required this.price,
+    required this.days,
+    required this.rating,
+    required this.description,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PackageDetailPage(
+              userId: FirebaseAuth.instance.currentUser?.uid,
+              imageUrl: image,
+              title: title,
+              price: price,
+              days: days,
+              rating: rating,
+              description: description,
+            ),
+          ),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(15),
+          color: Color(0xFFEFEFEE),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 6,
+              spreadRadius: 2,
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
+              child: Image.network(
+                image, // Load image from Firestore
+                fit: BoxFit.cover,
+                height: 120,
+                width: double.infinity,
+                errorBuilder: (context, error, stackTrace) {
+                  return Image.asset('assets/images/placeholder.png'); // Fallback image
+                },
+                loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return Center(
+                    child: CircularProgressIndicator(
+                      value: loadingProgress.expectedTotalBytes != null
+                          ? loadingProgress.cumulativeBytesLoaded / (loadingProgress.expectedTotalBytes ?? 1)
+                          : null,
+                    ),
+                  );
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  SizedBox(height: 5),
+                  Text(
+                    price.toString(),
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  SizedBox(height: 5),
+                  Text(
+                    days,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF000000),
+                    ),
+                  ),
+                  SizedBox(height: 5),
+                  Row(
+                    children: [
+                      Icon(Icons.star, color: Colors.amber, size: 16),
+                      SizedBox(width: 5),
+                      Text(
+                        rating,
+                        style: TextStyle(fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+/*class TripCard extends StatelessWidget {
   final String image;
   final String title;
   final double price;
@@ -1179,7 +1324,7 @@ class TripCard extends StatelessWidget {
       ),
     );
   }
-}
+}*/
 
 
 
@@ -1317,3 +1462,5 @@ Future<List<String>> _fetchPackageNames() async {
     throw Exception('Failed to load package names: $e');
   }
 }
+
+

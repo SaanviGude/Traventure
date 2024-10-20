@@ -357,7 +357,8 @@ class _AddPackagePageState extends State<AddPackagePage> {
           TextButton(
             onPressed: () {
               Navigator.pop(context); // Close the dialog
-              Navigator.pop(context, packageId); // Navigate back with packageId
+              Navigator.pop(context, packageId);
+              Navigator.of(context);// Navigate back with packageId
             },
             child: Text('OK'),
           ),

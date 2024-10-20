@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_basics/helpdesk.dart';
 import 'profile.dart';
 import 'notprofile.dart';
 import 'main.dart';
+import 'booknot.dart';
 import 'userprofile.dart';
 
 class noHomePage extends StatelessWidget {
@@ -62,12 +64,12 @@ class noHomePage extends StatelessWidget {
               itemBuilder: (context, index) {
                 final package = packages[index].data() as Map<String, dynamic>;
                 return TripCard(
-                  name: package['name'],
-                  price: package['price'], // Now int
-                  days: package['days'],
-                  rating: package['rating'],
-                  description: package['description'],
-                  imageUrl: package['image'],
+                  imageUrl: package['image'] ?? 'https://via.placeholder.com/150',  // Default image if null
+                  name: package['name'] ?? 'Unknown',                            // Default name if null
+                  price: package['price'] != null ? package['price'] : 0,                              // Default price if null
+                  days: package['days'] ?? '0',                                  // Default days if null
+                  rating: package['rating'] ?? '0',                              // Default rating if null
+                  description: package['description'] ?? 'No description available',
                 );
               },
             ),
@@ -138,7 +140,7 @@ class noHomePage extends StatelessWidget {
 
 class TripCard extends StatelessWidget {
   final String name;
-  final int price; // Changed to int
+  final double price; // Changed to int
   final String days;
   final String rating;
   final String description;
@@ -154,6 +156,7 @@ class TripCard extends StatelessWidget {
   });
 
   @override
+  /*
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
@@ -193,7 +196,7 @@ class TripCard extends StatelessWidget {
                 ),
                 SizedBox(height: 5),
                 Text(
-                  '$price/-', // Updated price display
+                  price.toString(), // Updated price display
                   style: TextStyle(fontSize: 14, color: Colors.black87),
                 ),
                 SizedBox(height: 5),
@@ -222,7 +225,91 @@ class TripCard extends StatelessWidget {
     );
   }
 }
+*/
 
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        // Navigate to the login page on tap
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) =>NotPackageDetailPage( userId:FirebaseAuth.instance.currentUser?.uid,
+          imageUrl: imageUrl,
+          title: name,
+          price: price,
+          days: days,
+          rating: rating,
+          description: description,),),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(15),
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 6,
+              spreadRadius: 2,
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
+              child: Image.network(
+                imageUrl ?? 'https://via.placeholder.com/150',
+                fit: BoxFit.cover,
+                height: 120,
+                width: double.infinity,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  SizedBox(height: 5),
+                  Text(
+                    price.toString(),
+                    style: TextStyle(fontSize: 14, color: Colors.black87),
+                  ),
+                  SizedBox(height: 5),
+                  Text(
+                    '$days days',
+                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
+                  SizedBox(height: 5),
+                  Row(
+                    children: [
+                      Icon(Icons.star, color: Colors.amber, size: 16),
+                      SizedBox(width: 5),
+                      Text(rating, style: TextStyle(fontSize: 12)),
+                    ],
+                  ),
+                  SizedBox(height: 5),
+                  Text(
+                    description,
+                    style: TextStyle(color: Colors.orangeAccent, fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 class CustomSearchDelegate extends SearchDelegate {
   @override
   List<Widget>? buildActions(BuildContext context) {
