@@ -841,19 +841,6 @@ class _HomePageState extends State<GHomePage> {
                     },*/
                   ),
                   ListTile(
-                    leading: Icon(Icons.settings, size: 50),
-                    title: const Text(
-                      'Settings',
-                      style: TextStyle(
-                        fontSize: 30,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    /*onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => GProfilePage(userId: FirebaseAuth.instance.currentUser?.uid)));
-                    },*/
-                  ),
-                  ListTile(
                     leading: Icon(Icons.help_center, size: 50),
                     title: const Text('Help desk',
                         style: TextStyle(
@@ -874,6 +861,17 @@ class _HomePageState extends State<GHomePage> {
                         )),
                     onTap: () {
                       _logout(context);
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.delete_outline, size: 50),
+                    title: const Text('Delete account',
+                      style: TextStyle(
+                        fontSize: 25,
+                        fontWeight: FontWeight.w500,),
+                    ),
+                    onTap: () {
+                      _showDeleteAccountDialog(context);
                     },
                   ),
                 ],
@@ -1079,6 +1077,105 @@ class TripCard extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+void _showDeleteAccountDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text("Delete Account"),
+        content: Text("Are you sure you want to delete your account? This action cannot be undone."),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Close dialog without deleting
+            },
+            child: Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () {
+              _deleteAccount(context); // Perform account deletion
+            },
+            child: Text(
+              "Delete",
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+void _deleteAccount(BuildContext context) async {
+  try {
+    User? user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+      // Get the user's UID
+      String userId = user.uid;
+
+      // Step 1: Delete the user document from the Firestore collection "userlogin"
+      await FirebaseFirestore.instance
+          .collection('guides')
+          .doc(userId) // Directly using the userId as the document ID
+          .delete();
+      /*.where('userId', isEqualTo: userId)
+          .get()
+          .then((snapshot) {
+        for (var doc in snapshot.docs) {
+          doc.reference.delete(); // Delete each document found with the userId
+        }
+      });*/
+
+      // Step 2: Delete the user from Firebase Authentication
+      await user.delete();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Account deleted successfully"),
+          backgroundColor: Colors.grey,
+        ),
+      );
+
+      // Step 3: Sign out the user and navigate to the main screen
+      await FirebaseAuth.instance.signOut();
+      Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
+
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("No user is signed in"),
+          backgroundColor: Colors.grey,
+        ),
+      );
+    }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("Failed to delete account: $e"),
+        backgroundColor: Colors.grey,
+      ),
+    );
+  }
+}
+Future<void> _reauthenticateUser() async {
+  User? user = FirebaseAuth.instance.currentUser;
+  if (user != null) {
+    try {
+      // Prompt the user to re-enter their credentials
+      AuthCredential credential = EmailAuthProvider.credential(
+        email: user.email!,
+        password: 'user_password', // You'll need to collect the password from the user
+      );
+
+      // Re-authenticate the user
+      await user.reauthenticateWithCredential(credential);
+    } catch (e) {
+      throw FirebaseAuthException(code: 'Re-authentication failed: $e');
+    }
   }
 }
 

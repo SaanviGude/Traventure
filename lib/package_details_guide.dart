@@ -132,38 +132,92 @@ class _PackageGDetailPageState extends State<PackageGDetailPage> {
                     SizedBox(height: 10),
                     Text('Description: $description', style: TextStyle(fontSize: 18)),
 
-                    // Add some space before the button
+                    // Add some space before the buttons
                     SizedBox(height: 20),
 
-                    // "Edit" button
-                    Center(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => EditPackagePage(
-                                userId: widget.userId,
-                                packageId: widget.packageId,
-                                /*imageUrl: imageUrl,
-                                title: title,
-                                price: price,
-                                days: days,
-                                rating: rating,
-                                description: description,*/
+                    // Row for the "Edit" and "Delete" buttons
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly, // Ensure buttons are equidistant
+                      children: [
+                        // "Edit" button
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => EditPackagePage(
+                                  userId: widget.userId,
+                                  packageId: widget.packageId,
+                                ),
                               ),
-                            ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                          backgroundColor: Color(0xFF5E8953), // Same color as AppBar
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                            backgroundColor: Color(0xFF5E8953), // Same color as AppBar
+                          ),
+                          child: Text(
+                            'Edit',
+                            style: TextStyle(fontSize: 18, color: Colors.white),
+                          ),
                         ),
-                        child: Text(
-                          'Edit',
-                          style: TextStyle(fontSize: 18, color: Colors.white),
+
+                        // "Delete" button
+                        ElevatedButton(
+                          onPressed: () async {
+                            bool confirmDelete = await showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: Text('Confirm Deletion'),
+                                content: Text('Are you sure you want to delete this package?'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop(false); // Cancel deletion
+                                    },
+                                    child: Text('Cancel'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop(true); // Confirm deletion
+                                    },
+                                    child: Text('Delete'),
+                                  ),
+                                ],
+                              ),
+                            ) ?? false;
+
+                            if (confirmDelete) {
+                              try {
+                                await FirebaseFirestore.instance
+                                    .collection('packages')
+                                    .doc(widget.packageId)
+                                    .delete(); // Delete the package document
+
+                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                  content: Text('Package deleted successfully.'),
+                                  backgroundColor: Colors.red,
+                                ));
+
+                                Navigator.of(context).pop(); // Navigate back after deletion
+                              } catch (e) {
+                                print("Error deleting package: $e");
+                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                  content: Text('Error deleting package: $e'),
+                                ));
+                              }
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                            backgroundColor: Colors.red, // Red color for delete button
+                          ),
+                          child: Text(
+                            'Delete',
+                            style: TextStyle(fontSize: 18, color: Colors.white),
+                          ),
                         ),
-                      ),
+                      ],
                     ),
                   ],
                 );
@@ -174,4 +228,5 @@ class _PackageGDetailPageState extends State<PackageGDetailPage> {
       ),
     );
   }
+
 }

@@ -149,8 +149,31 @@ class _ProfilePageState extends State<GuideProfilePage> {
                             ));
                             return;
                           }
-
+                          // Check if the email is valid by verifying its format
+                          if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(email)) {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text('Please enter a valid email address.'),
+                            ));
+                            return;
+                          }
+                          // Password validation (minimum 8 characters, contains lowercase, uppercase, special symbol, and number)
+                          RegExp passwordRegExp = RegExp(
+                              r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$');
+                          if (!passwordRegExp.hasMatch(password)) {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text(
+                                  'Password must be at least 8 characters long, include a lowercase letter, an uppercase letter, a number, and a special character.'),
+                            ));
+                            return;
+                          }
                           try {
+                            final List<String> signInMethods = await FirebaseAuth.instance.fetchSignInMethodsForEmail(email);
+                            if (signInMethods.isNotEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                content: Text('Email already in use. Please use a different email.'),
+                              ));
+                              return;
+                            }
                             // Firebase Authentication
                             UserCredential userCredential = await FirebaseAuth.instance
                                 .createUserWithEmailAndPassword(email: email, password: password);

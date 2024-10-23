@@ -383,14 +383,41 @@ class _ProfilePageState extends State<UserProfilePage> {
                           String email = _emailController.text.trim();
                           String password = _passwordController.text.trim();
 
+                          // Email validation (check if it's empty or invalid format)
                           if (email.isEmpty || password.isEmpty) {
                             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                               content: Text('Email and password cannot be empty'),
                             ));
                             return;
                           }
+                          // Check if the email is valid by verifying its format
+                          if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(email)) {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text('Please enter a valid email address.'),
+                            ));
+                            return;
+                          }
+                          // Password validation (minimum 8 characters, contains lowercase, uppercase, special symbol, and number)
+                          RegExp passwordRegExp = RegExp(
+                              r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$');
+                          if (!passwordRegExp.hasMatch(password)) {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text(
+                                  'Password must be at least 8 characters long, include a lowercase letter, an uppercase letter, a number, and a special character.'),
+                            ));
+                            return;
+                          }
 
                           try {
+                            // Check if the email already exists in Firebase Authentication
+                            final List<String> signInMethods = await FirebaseAuth.instance.fetchSignInMethodsForEmail(email);
+                            if (signInMethods.isNotEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                content: Text('Email already in use. Please use a different email.'),
+                              ));
+                              return;
+                            }
+
                             // Firebase Authentication
                             UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
                               email: email,
@@ -431,6 +458,7 @@ class _ProfilePageState extends State<UserProfilePage> {
                           textStyle: TextStyle(color: Color(0xFF235537)),
                         ),
                       )
+
                     ],
                   ),
                 ],

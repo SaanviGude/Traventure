@@ -6,7 +6,7 @@ import 'package:flutter_basics/main.dart';
 import 'package:flutter_basics/notprofile.dart';
 import 'dart:io'; // For handling files
 import 'package:image_picker/image_picker.dart'; // For picking images
-import 'profile.dart';
+import 'main.dart';
 import 'feed.dart';
 import 'history.dart';
 import 'package_detail_anonymous.dart';
@@ -154,7 +154,7 @@ class _noHomePageState extends State<noHomePage> {
                               Text(
                                 FirebaseAuth.instance.currentUser?.uid ??
                                     'Id not available',
-                                style: TextStyle(fontSize: 14),
+                                style: TextStyle(fontSize: 10.5),
                               ),
                             ],
                           ),
@@ -190,17 +190,6 @@ class _noHomePageState extends State<noHomePage> {
                     },
                   ),
                   ListTile(
-                    leading: Icon(Icons.settings, size: 50),
-                    title: const Text('Settings',
-                      style: TextStyle(
-                        fontSize: 30,
-                        fontWeight: FontWeight.w500,),
-                    ),
-                    onTap: () {
-                      // Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilePage(userId: FirebaseAuth.instance.currentUser?.uid,)));
-                    },
-                  ),
-                  ListTile(
                     leading: Icon(Icons.help_center, size: 50),
                     title: const Text('Help desk',
                         style: TextStyle(
@@ -212,12 +201,23 @@ class _noHomePageState extends State<noHomePage> {
                   ),
                   ListTile(
                     leading: Icon(Icons.logout_outlined, size: 50),
-                    title: const Text('Log Out',
+                    title: const Text('Login',
                         style: TextStyle(
                           fontSize: 30,
                           fontWeight: FontWeight.w500,)),
                     onTap: () {
                       _logout(context); // Call the log-out function
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.delete_outline, size: 50),
+                    title: const Text('Delete account',
+                      style: TextStyle(
+                        fontSize: 25,
+                        fontWeight: FontWeight.w500,),
+                    ),
+                    onTap: () {
+                      _showDeleteAccountDialog(context);
                     },
                   ),
                 ],
@@ -431,6 +431,96 @@ class TripCard extends StatelessWidget {
     );
   }
 }
+
+
+void _showDeleteAccountDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text("Delete Account"),
+        content: Text("Are you sure you want to delete your account? This action cannot be undone."),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Close dialog without deleting
+            },
+            child: Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () {
+              _deleteAccount(context); // Perform account deletion
+            },
+            child: Text(
+              "Delete",
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+void _deleteAccount(BuildContext context) async {
+  try {
+    // Re-authenticate the user before deletion (Firebase requires this for sensitive operations)
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      await user.reload(); // Reload to ensure user is up-to-date
+
+      // Delete the user from Firebase Authentication
+      await user.delete();
+
+      // Show a snackbar to confirm account deletion
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Account deleted successfully"),
+          backgroundColor: Colors.blueGrey,
+        ),
+      );
+
+      // After deletion, you might want to log the user out and navigate to a login screen
+      await FirebaseAuth.instance.signOut();
+
+      // Navigate to login or home page after deletion
+      Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage())); // Replace '/login' with your actual login route
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("No user is signed in"),
+          backgroundColor: Colors.blueGrey,
+        ),
+      );
+    }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("Failed to delete account: $e"),
+        backgroundColor: Colors.blueGrey,
+      ),
+    );
+  }
+}
+
+Future<void> _reauthenticateUser() async {
+  User? user = FirebaseAuth.instance.currentUser;
+  if (user != null) {
+    try {
+      // Prompt the user to re-enter their credentials
+      AuthCredential credential = EmailAuthProvider.credential(
+        email: user.email!,
+        password: 'user_password', // You'll need to collect the password from the user
+      );
+
+      // Re-authenticate the user
+      await user.reauthenticateWithCredential(credential);
+    } catch (e) {
+      throw FirebaseAuthException(code: 'Re-authentication failed: $e');
+    }
+  }
+}
+
 
 // Function to fetch package names
 Future<List<String>> _fetchPackageNames() async {
