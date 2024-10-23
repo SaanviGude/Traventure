@@ -655,10 +655,6 @@ import 'package:flutter_basics/package_details_guide.dart';
 import 'package:image_picker/image_picker.dart'; // For picking images
 import 'package:firebase_storage/firebase_storage.dart'; // For image from Firebase Storage
 import 'dart:io';
-import 'profile.dart';
-import 'feed.dart';
-import 'history.dart';
-import 'package_detail.dart';
 import 'addpackage.dart';
 import 'helpdesk.dart';
 
@@ -672,19 +668,47 @@ class GHomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<GHomePage> {
-  File? _image;
-  final picker = ImagePicker();
+  List<Map<String, dynamic>> _tripPackages = []; // Store packages here
+  bool _isLoading = false;
 
-  // Function to pick image from gallery
-  Future<void> _pickImage() async {
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _image = File(pickedFile.path);
-      });
-    }
+  @override
+  void initState() {
+    super.initState();
+    _fetchAndSetPackages(); // Fetch the packages when the widget is first built
   }
 
+  // Fetch and set packages
+  Future<void> _fetchAndSetPackages() async {
+    setState(() {
+      _isLoading = true; // Start loading
+    });
+
+    try {
+      final fetchedPackages = await _fetchPackages();
+      setState(() {
+        _tripPackages = fetchedPackages; // Set the fetched packages
+      });
+    } catch (e) {
+      // Handle error
+      print('Error fetching packages: $e');
+    } finally {
+      setState(() {
+        _isLoading = false; // Stop loading
+      });
+    }
+    File? _image;
+    final picker = ImagePicker();
+
+    // Function to pick image from gallery
+    Future<void> _pickImage() async {
+      final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+      if (pickedFile != null) {
+        setState(() {
+          _image = File(pickedFile.path);
+        });
+      }
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -877,38 +901,41 @@ class _HomePageState extends State<GHomePage> {
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Center(child: Text('No packages found.'));
           }
+
           final tripPackages = snapshot.data!;
           final filteredPackages = widget.selectedSearch != null
-              ? tripPackages
-              .where((package) => package['name']!
+              ? tripPackages.where((package) => package['name']!
               .toLowerCase()
               .contains(widget.selectedSearch!.toLowerCase()))
               .toList()
               : tripPackages;
 
-          return Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: GridView.builder(
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 0.75,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-              ),
-              itemCount: filteredPackages.length,
-              itemBuilder: (context, index) {
-                var trip = filteredPackages[index];
+          return RefreshIndicator(  // Added RefreshIndicator here
+            onRefresh: _fetchAndSetPackages, // This will be called when user swipes down
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: GridView.builder(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 0.75,
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
+                ),
+                itemCount: filteredPackages.length,
+                itemBuilder: (context, index) {
+                  var trip = filteredPackages[index];
 
-                return TripCard(
-                  image: trip['image'] ?? 'https://via.placeholder.com/150',
-                  name: trip['name'] ?? 'Unknown',
-                  price: trip['price'] ?? 0.0,
-                  days: trip['days'] ?? '0',
-                  rating: trip['rating'] ?? '0',
-                  description: trip['description'] ?? 'No description available',
-                  packageId: trip['packageId'], // Using the package ID
-                );
-              },
+                  return TripCard(
+                    image: trip['image_url'] ?? 'https://via.placeholder.com/150',
+                    name: trip['name'] ?? 'Unknown',
+                    price: trip['price'] ?? 0.0,
+                    days: trip['days'] ?? '0',
+                    rating: trip['rating'] ?? '0',
+                    description: trip['description'] ?? 'No description available',
+                    packageId: trip['packageId'], // Using the package ID
+                  );
+                },
+              ),
             ),
           );
         },
@@ -947,12 +974,12 @@ class TripCard extends StatelessWidget {
           MaterialPageRoute(
             builder: (context) => PackageGDetailPage(
               userId: FirebaseAuth.instance.currentUser?.uid,
-              imageUrl: image,
+              /*imageUrl: image,
               title: name,
               price: price,
               days: days,
               rating: rating,
-              description: description,
+              description: description,*/
               packageId: packageId, // Pass package ID to detail page
             ),
           ),
@@ -1065,7 +1092,7 @@ Future<List<Map<String, dynamic>>> _fetchPackages() async {
         'days': data['days'] ?? '0',
         'rating': data['rating'] ?? '0',
         'description': data['description'] ?? 'No description available',
-        'image': data['image'] ?? 'https://via.placeholder.com/150', // Use image URL from Firestore
+        'image_url': data['image_url'] ?? 'https://via.placeholder.com/150', // Use image URL from Firestore
         'packageId': data['packageId'] ?? doc.id, // Ensure the package ID is available
       };
     }).toList();

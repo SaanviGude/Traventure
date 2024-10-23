@@ -1023,10 +1023,10 @@ class _PaymentPageState extends State<PaymentPage> {
             ElevatedButton(
               onPressed: () {
                 // Navigate back to the home page
-                Navigator.of(context).pushAndRemoveUntil(
+                /*Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(builder: (context) => HomePage(selectedSearch: null,userId: FirebaseAuth.instance.currentUser?.uid,)), // Replace with your actual home page widget
                       (Route<dynamic> route) => false, // Remove all previous routes
-                );
+                );*/
               },// Reopen checkout if needed
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
@@ -1073,16 +1073,16 @@ class BookingConfirmationPage extends StatelessWidget {
             ),
 
             SizedBox(height: 10), // Space before the button
-            ElevatedButton(
+            /*ElevatedButton(
               onPressed: () {
                 // Navigate back to the home page
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (context) =>
+                //Navigator.of(context).pushAndRemoveUntil(
+                  *//*MaterialPageRoute(builder: (context) =>
                       HomePage(selectedSearch: null,
                         userId: FirebaseAuth.instance.currentUser?.uid,)),
                   // Replace with your actual home page widget
                       (Route<
-                      dynamic> route) => false, // Remove all previous routes
+                      dynamic> route) => false, // Remove all previous routes*//*
                 );
               },
               child: Text(
@@ -1091,7 +1091,7 @@ class BookingConfirmationPage extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xFF5E8953), // Button color
               ),
-            ),
+            ),*/
           ],
 
         ),

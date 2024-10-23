@@ -1,43 +1,47 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // Firestore for fetching package details
 import 'editpackage.dart';
-import 'package:firebase_storage/firebase_storage.dart'; // Import Firebase Storage
 
-class PackageGDetailPage extends StatelessWidget {
+class PackageGDetailPage extends StatefulWidget {
   final String? userId;
-  final String? packageId; // Add the packageId here
-  final String? imageUrl;
-  final String title;
-  final double price; // Ensure this is a double
-  final String days;
-  final String rating;
-  final String description;
+  final String? packageId;
 
   PackageGDetailPage({
     required this.userId,
-    required this.packageId, // Add packageId to constructor
-    required this.imageUrl,
-    required this.title,
-    required this.price,
-    required this.days,
-    required this.rating,
-    required this.description,
+    required this.packageId,
   });
 
-  Future<String> _getImageUrl() async {
-    if (imageUrl != null) {
-      return imageUrl!; // Use the provided image URL if it exists
-    } else if (packageId != null) {
-      // Construct the image URL dynamically using packageId
-      try {
-        final ref = FirebaseStorage.instance.ref().child('packages/$packageId.jpg'); // Assuming the image is stored with the packageId
-        String url = await ref.getDownloadURL();
-        return url;
-      } catch (e) {
-        print('Error fetching image: $e');
-        return ''; // Return an empty string if image fetching fails
-      }
+  @override
+  _PackageGDetailPageState createState() => _PackageGDetailPageState();
+}
+
+class _PackageGDetailPageState extends State<PackageGDetailPage> {
+  late Future<Map<String, dynamic>?> packageData;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.packageId != null) {
+      packageData = fetchPackageData(widget.packageId!);
     } else {
-      return ''; // Return an empty string if neither imageUrl nor packageId is available
+      packageData = Future.value(null);
+    }
+  }
+
+  Future<Map<String, dynamic>?> fetchPackageData(String packageId) async {
+    try {
+      DocumentSnapshot packageDoc = await FirebaseFirestore.instance
+          .collection('packages') // Assuming the collection is 'packages'
+          .doc(packageId)
+          .get();
+      if (packageDoc.exists) {
+        return packageDoc.data() as Map<String, dynamic>?;
+      } else {
+        return null; // No data found
+      }
+    } catch (e) {
+      print("Error fetching package data: $e");
+      return null;
     }
   }
 
@@ -45,28 +49,43 @@ class PackageGDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(title),
+        title: Text('Package Details'),
         backgroundColor: Color(0xFF5E8953),
       ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              FutureBuilder<String>(
-                future: _getImageUrl(), // Fetch the image URL
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Container(
+          child: FutureBuilder<Map<String, dynamic>?>(
+            future: packageData, // Fetch the package data
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return Center(child: Text('Error fetching package data'));
+              } else if (!snapshot.hasData || snapshot.data == null) {
+                return Center(child: Text('No package data found'));
+              } else {
+                var data = snapshot.data!;
+
+                // Use fetched package data in the UI (title, price, etc.)
+                String imageUrl = data['image_url'] ?? ''; // Example: fetching the image URL
+                String title = data['name'] ?? 'No title';
+                double price = data['price']?.toDouble() ?? 0.0;
+                String days = data['days'] ?? 'N/A';
+                String rating = data['rating'] ?? 'No rating';
+                String description = data['description'] ?? 'No description';
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    imageUrl.isNotEmpty
+                        ? Image.network(
+                      imageUrl,
+                      fit: BoxFit.cover,
                       height: 200,
-                      color: Colors.grey,
-                      child: Center(
-                        child: CircularProgressIndicator(),
-                      ),
-                    );
-                  } else if (snapshot.hasError || snapshot.data == '') {
-                    return Container(
+                      width: double.infinity,
+                    )
+                        : Container(
                       height: 200,
                       color: Colors.grey,
                       child: Center(
@@ -75,67 +94,60 @@ class PackageGDetailPage extends StatelessWidget {
                           style: TextStyle(fontSize: 16, color: Colors.white),
                         ),
                       ),
-                    );
-                  } else {
-                    return Image.network(
-                      snapshot.data!,
-                      fit: BoxFit.cover,
-                      height: 200,
-                      width: double.infinity,
-                    );
-                  }
-                },
-              ),
-              SizedBox(height: 16.0), // Add space between elements
+                    ),
+                    SizedBox(height: 16.0), // Add space between elements
 
-              // Display the package details
-              Text(
-                title,
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 10),
-              // Convert price to double and format
-              Text('Price: \$${price.toStringAsFixed(2)}', style: TextStyle(fontSize: 18)),
-              SizedBox(height: 10),
-              Text('Duration: $days', style: TextStyle(fontSize: 18)),
-              SizedBox(height: 10),
-              Text('Rating: $rating', style: TextStyle(fontSize: 18)),
-              SizedBox(height: 10),
-              Text('Description: $description', style: TextStyle(fontSize: 18)),
+                    // Display the package details using the fetched data
+                    Text(
+                      title,
+                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 10),
+                    Text('Price: \$${price.toStringAsFixed(2)}', style: TextStyle(fontSize: 18)),
+                    SizedBox(height: 10),
+                    Text('Duration: $days', style: TextStyle(fontSize: 18)),
+                    SizedBox(height: 10),
+                    Text('Rating: $rating', style: TextStyle(fontSize: 18)),
+                    SizedBox(height: 10),
+                    Text('Description: $description', style: TextStyle(fontSize: 18)),
 
-              // Add some space before the button
-              SizedBox(height: 20),
+                    // Add some space before the button
+                    SizedBox(height: 20),
 
-              // "Edit" button
-              Center(
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => EditPackagePage(
-                          userId: userId,
-                          imageUrl: imageUrl,
-                          title: title,
-                          price: price,
-                          days: days,
-                          rating: rating,
-                          description: description,
+                    // "Edit" button
+                    Center(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => EditPackagePage(
+                                userId: widget.userId,
+                                packageId: widget.packageId,
+                                /*imageUrl: imageUrl,
+                                title: title,
+                                price: price,
+                                days: days,
+                                rating: rating,
+                                description: description,*/
+                              ),
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                          backgroundColor: Color(0xFF5E8953), // Same color as AppBar
+                        ),
+                        child: Text(
+                          'Edit',
+                          style: TextStyle(fontSize: 18, color: Colors.white),
                         ),
                       ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                    backgroundColor: Color(0xFF5E8953), // Same color as AppBar
-                  ),
-                  child: Text(
-                    'Edit',
-                    style: TextStyle(fontSize: 18, color: Colors.white),
-                  ),
-                ),
-              ),
-            ],
+                    ),
+                  ],
+                );
+              }
+            },
           ),
         ),
       ),
