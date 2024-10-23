@@ -913,7 +913,7 @@ class _PaymentPageState extends State<PaymentPage> {
   // Function to open Razorpay checkout
   void _openCheckout() {
     var options = {
-      'key': 'rzp_test_Pjb30t4hoYGOFf', // Replace with your actual Razorpay API key
+      'key': 'rzp_test_nGmsYSbCXVA9pK', // Replace with your actual Razorpay API key
       'amount': (totalAmount * 100).toInt(), // Amount in paise
       'currency': 'INR',
       'name': widget.packageName,
@@ -922,9 +922,9 @@ class _PaymentPageState extends State<PaymentPage> {
         'contact': '', // Optionally prefill contact
         'email': '', // Optionally prefill email
       },
-      'external': {
+      /*'external': {
         'wallets': ['paytm', 'gpay'] // Allow UPI and Paytm wallets
-      },
+      },*/
     };
 
     try {
@@ -1073,25 +1073,28 @@ class BookingConfirmationPage extends StatelessWidget {
             ),
 
             SizedBox(height: 10), // Space before the button
-            /*ElevatedButton(
+            ElevatedButton(
               onPressed: () {
-                // Navigate back to the home page
-                //Navigator.of(context).pushAndRemoveUntil(
-                  *//*MaterialPageRoute(builder: (context) =>
-                      HomePage(selectedSearch: null,
-                        userId: FirebaseAuth.instance.currentUser?.uid,)),
-                  // Replace with your actual home page widget
-                      (Route<
-                      dynamic> route) => false, // Remove all previous routes*//*
+                // Navigate back to the home page and remove all previous routes
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(
+                    builder: (context) => HomePage(
+                      selectedSearch: null,
+                      userId: FirebaseAuth.instance.currentUser?.uid,
+                    ),
+                  ),
+                      (Route<dynamic> route) => false, // Remove all previous routes
                 );
               },
               child: Text(
-                'Go to Home', style: TextStyle(color: Color(0xFFE4D59F)),),
-              // Button label
+                'Go to Home',
+                style: TextStyle(color: Color(0xFFE4D59F)),
+              ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xFF5E8953), // Button color
               ),
-            ),*/
+            ),
+
           ],
 
         ),

@@ -1,3 +1,4 @@
+import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -27,7 +28,7 @@ class _EditPackagePageState extends State<EditPackagePage> {
   TextEditingController titleController = TextEditingController();
   TextEditingController priceController = TextEditingController();
   TextEditingController daysController = TextEditingController();
-  TextEditingController ratingController = TextEditingController();
+  TextEditingController locationUrlController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
 
   Uint8List? _imageBytes;
@@ -60,7 +61,7 @@ class _EditPackagePageState extends State<EditPackagePage> {
         titleController.text = data['name'] ?? '';
         priceController.text = data['price'].toString();
         daysController.text = data['days'] ?? '';
-        ratingController.text = data['rating'] ?? '';
+        locationUrlController.text = data['location_url'] ?? '';
         descriptionController.text = data['description'] ?? '';
         _imageUrl = data['image_url'];  // Load the existing image URL
         return data;
@@ -90,7 +91,7 @@ class _EditPackagePageState extends State<EditPackagePage> {
           'name': titleController.text,
           'price': price,
           'days': daysController.text,
-          'rating': ratingController.text,
+          'location_url': locationUrlController.text,
           'description': descriptionController.text,
         };
 
@@ -214,7 +215,7 @@ class _EditPackagePageState extends State<EditPackagePage> {
                       SizedBox(height: 10),
                       _buildTextField(daysController, 'Duration (Days)'),
                       SizedBox(height: 10),
-                      _buildTextField(ratingController, 'Rating'),
+                      _buildTextField(locationUrlController, 'Location'),
                       SizedBox(height: 10),
                       _buildTextField(descriptionController, 'Description'),
                       SizedBox(height: 20),

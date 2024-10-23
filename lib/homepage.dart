@@ -1486,10 +1486,11 @@ import 'feed.dart';
 import 'history.dart';
 import 'package_detail.dart';
 import 'helpdesk.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HomePage extends StatefulWidget {
   final String? selectedSearch;
-  final String userId;
+  final String? userId;
   HomePage({this.selectedSearch, required this.userId});
 
   @override
@@ -1750,7 +1751,7 @@ class _HomePageState extends State<HomePage> {
                     name: trip['name'] ?? 'Unknown',
                     price: trip['price'] ?? 0.0,
                     days: trip['days'] ?? '0',
-                    rating: trip['rating'] ?? '0',
+                    location_url: trip['location_url'] ?? 'No location',
                     description: trip['description'] ?? 'No description available',
                     packageId: trip['packageId'], // Using the package ID
                   );
@@ -1770,7 +1771,7 @@ class TripCard extends StatelessWidget {
   final String name;
   final double price;
   final String days;
-  final String rating;
+  final String location_url;
   final String description;
   final String packageId;
 
@@ -1780,10 +1781,19 @@ class TripCard extends StatelessWidget {
     required this.name,
     required this.price,
     required this.days,
-    required this.rating,
+    required this.location_url,
     required this.description,
     required this.packageId,
   }) : super(key: key);
+
+  // Function to launch a URL (Google Maps in this case)
+  Future<void> _launchUrl(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1798,7 +1808,7 @@ class TripCard extends StatelessWidget {
               title: name,
               price: price,
               days: days,
-              rating: rating,
+              location_url: location_url,
               description: description,
               //packageId: packageId, // Pass package ID to detail page
             ),
@@ -1869,11 +1879,21 @@ class TripCard extends StatelessWidget {
                     SizedBox(height: 5),
                     Row(
                       children: [
-                        Icon(Icons.star, color: Colors.amber, size: 16),
-                        SizedBox(width: 5),
-                        Text(
-                          rating,
-                          style: TextStyle(fontSize: 12),
+                        SizedBox(height: 5),
+                        GestureDetector(
+                          onTap: () {
+                            _launchUrl(location_url); // Open location URL in Maps
+                          },
+                          child: Row(
+                            children: [
+                              Icon(Icons.location_on, color: Colors.blue, size: 16),
+                              SizedBox(width: 5),
+                              Text(
+                                'View on Map',
+                                style: TextStyle(fontSize: 12, color: Colors.blue),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -1910,7 +1930,7 @@ Future<List<Map<String, dynamic>>> _fetchPackages() async {
         'name': data['name'] ?? 'Unknown',
         'price': data['price'] ?? 'N/A',
         'days': data['days'] ?? '0',
-        'rating': data['rating'] ?? '0',
+        'location_url': data['location_url'] ?? 'No location',
         'description': data['description'] ?? 'No description available',
         'image_url': data['image_url'] ?? 'https://via.placeholder.com/150', // Use image URL from Firestore
         'packageId': data['packageId'] ?? doc.id, // Ensure the package ID is available
@@ -1950,7 +1970,7 @@ Future<void> _addPackageWithImage({
   required String name,
   required double price,
   required String days,
-  required double rating,
+  required String location_url,
   required String description,
   required File imageFile,
 }) async {
@@ -1966,7 +1986,7 @@ Future<void> _addPackageWithImage({
       'name': name,
       'price': price,
       'days': days,
-      'rating': rating,
+      'location_url': location_url,
       'description': description,
       'image': imageUrl, // Store the image URL
       'packageId': docRef.id, // Store the generated document ID as the packageId

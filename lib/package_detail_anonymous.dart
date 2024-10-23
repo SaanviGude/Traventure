@@ -620,7 +620,7 @@ class PackageDetailPage extends StatelessWidget {
               Center(
                 child: ElevatedButton(
                   onPressed: () {
-                   
+
                       Navigator.push(context, MaterialPageRoute(
                           builder: (context) => BookingPage(packageName: title)));
                   },
@@ -1170,12 +1170,13 @@ class _PackageDetailPageState extends State<PackageDetailPage> {
     );
   }
 }*/
+import 'package:flutter_basics/notprofile.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'book.dart';
 
-class PackageDetailPage extends StatelessWidget {
+class noPackageDetailPage extends StatelessWidget {
   final String? userId;
   final String? imageUrl;  // URL of the image stored in Firebase Storage
   final String title;
@@ -1184,7 +1185,7 @@ class PackageDetailPage extends StatelessWidget {
   final String location_url;
   final String description;
 
-  PackageDetailPage({
+  noPackageDetailPage({
     required this.userId,
     required this.imageUrl,  // Use imageUrl instead of image
     required this.title,
@@ -1271,10 +1272,9 @@ class PackageDetailPage extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => BookingPage(
-                          packageName: title,
+                        builder: (context) => NoProfilePage(
                           userId: FirebaseAuth.instance.currentUser?.uid,
-                          price: price,
+                          //price: price,
                         ),
                       ),
                     );

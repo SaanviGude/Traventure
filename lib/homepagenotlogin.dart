@@ -1,321 +1,548 @@
+import 'package:firebase_storage/firebase_storage.dart'; // Import Firebase Storage
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_basics/helpdesk.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_basics/main.dart';
+import 'package:flutter_basics/notprofile.dart';
+import 'dart:io'; // For handling files
+import 'package:image_picker/image_picker.dart'; // For picking images
 import 'profile.dart';
-import 'notprofile.dart';
-import 'main.dart';
-import 'booknot.dart';
-import 'userprofile.dart';
+import 'feed.dart';
+import 'history.dart';
+import 'package_detail_anonymous.dart';
+import 'helpdesk.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-class noHomePage extends StatelessWidget {
-  final String userId;
-  noHomePage({required this.userId});
+class noHomePage extends StatefulWidget {
+  final String? selectedSearch;
+  final String? userId;
+  noHomePage({this.selectedSearch, required this.userId});
+  @override
+  _noHomePageState createState() => _noHomePageState();
+}
 
+class _noHomePageState extends State<noHomePage> {
+  List<Map<String, dynamic>> _tripPackages = []; // Store packages here
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchAndSetPackages(); // Fetch the packages when the widget is first built
+  }
+
+  // Fetch and set packages
+  Future<void> _fetchAndSetPackages() async {
+    setState(() {
+      _isLoading = true; // Start loading
+    });
+
+    try {
+      final fetchedPackages = await _fetchPackages();
+      setState(() {
+        _tripPackages = fetchedPackages; // Set the fetched packages
+      });
+    } catch (e) {
+      // Handle error
+      print('Error fetching packages: $e');
+    } finally {
+      setState(() {
+        _isLoading = false; // Stop loading
+      });
+    }
+    File? _image;
+    final picker = ImagePicker();
+
+    // Function to pick image from gallery
+    Future<void> _pickImage() async {
+      final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+      if (pickedFile != null) {
+        setState(() {
+          _image = File(pickedFile.path);
+        });
+      }
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
+        leading: Builder(
+          builder: (context) {
+            return IconButton(
+              icon: const Icon(Icons.menu),
+              color: Color(0xFFDCD0A1),
+              onPressed: () {
+                Scaffold.of(context).openDrawer();
+              },
+            );
+          },
+        ),
         backgroundColor: Color(0xFF5E8953),
-        title: Text('Traventure', style: TextStyle(color: Color(0xFFDCD0A1))),
         actions: <Widget>[
           IconButton(
-            onPressed: () {
-              showSearch(context: context, delegate: CustomSearchDelegate());
+            onPressed: () async {
+              List<String> packageNames = await _fetchPackageNames();
+              final result = await showSearch(
+                context: context,
+                delegate: CustomSearchDelegate(searchTerms: packageNames),
+              );
+
+              if (result != null) {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => noHomePage(
+                      selectedSearch: result,
+                      userId: widget.userId,
+                    ),
+                  ),
+                );
+              }
             },
-            icon: Icon(Icons.search),
+            icon: Icon(Icons.search, size: 30),
             color: Color(0xFFDCD0A1),
           ),
           IconButton(
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => NoProfilePage(userId: userId)),
+                MaterialPageRoute(
+                  builder: (context) => NoProfilePage(
+                    userId: FirebaseAuth.instance.currentUser?.uid,
+                  ),
+                ),
               );
             },
-            icon: const Icon(Icons.account_circle),
+            icon: const Icon(Icons.account_circle_sharp, size: 30),
+            color: Color(0xFFDCD0A1),
           ),
         ],
+        title: Text('User Homepage', overflow: TextOverflow.ellipsis),
+        centerTitle: true,
       ),
-      drawer: buildDrawer(context),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('packages').snapshots(),
+      drawer: Drawer(
+        backgroundColor: Color(0xFFFBF6DF),
+        child: Column(
+          children: [
+            Expanded(
+              child: ListView(
+                children: [
+                  // User Profile Section
+                  SizedBox(height: 20),
+                  Container(
+                    padding: EdgeInsets.all(16.0),
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 30,
+                          backgroundImage: AssetImage('assets/images/U.png'),
+                        ),
+                        SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'USER',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                FirebaseAuth.instance.currentUser?.uid ??
+                                    'Id not available',
+                                style: TextStyle(fontSize: 14),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Divider(),
+                  SizedBox(height: 20),
+                  ListTile(
+                    leading: Icon(Icons.history, size: 50),
+                    title: Text(
+                      'History',
+                      style: TextStyle(
+                        fontSize: 30,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => NoProfilePage(userId:  FirebaseAuth.instance.currentUser?.uid)));
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.feedback_outlined, size: 50),
+                    title: const Text('Feedback',
+                      style: TextStyle(
+                        fontSize: 30,
+                        fontWeight: FontWeight.w500,),
+                    ),
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => NoProfilePage(userId:  FirebaseAuth.instance.currentUser?.uid)));
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.settings, size: 50),
+                    title: const Text('Settings',
+                      style: TextStyle(
+                        fontSize: 30,
+                        fontWeight: FontWeight.w500,),
+                    ),
+                    onTap: () {
+                      // Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilePage(userId: FirebaseAuth.instance.currentUser?.uid,)));
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.help_center, size: 50),
+                    title: const Text('Help desk',
+                        style: TextStyle(
+                          fontSize: 30,
+                          fontWeight: FontWeight.w500,)),
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => helpdesk()));
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.logout_outlined, size: 50),
+                    title: const Text('Log Out',
+                        style: TextStyle(
+                          fontSize: 30,
+                          fontWeight: FontWeight.w500,)),
+                    onTap: () {
+                      _logout(context); // Call the log-out function
+                    },
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Image.asset(
+                'assets/images/Traventurelogo1.png',
+                height: 300,
+                width: 300,
+                fit: BoxFit.cover,
+              ),
+            ),
+          ],
+        ),
+      ),
+      backgroundColor: Color(0xFFDCD0A1),
+      body: FutureBuilder<List<Map<String, dynamic>>>(
+        future: _fetchPackages(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(child: Text('No packages found.'));
           }
 
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return Center(child: Text('No packages available.'));
-          }
+          final tripPackages = snapshot.data!;
+          final filteredPackages = widget.selectedSearch != null
+              ? tripPackages.where((package) => package['name']!
+              .toLowerCase()
+              .contains(widget.selectedSearch!.toLowerCase()))
+              .toList()
+              : tripPackages;
 
-          final packages = snapshot.data!.docs;
+          return RefreshIndicator(  // Added RefreshIndicator here
+            onRefresh: _fetchAndSetPackages, // This will be called when user swipes down
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: GridView.builder(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 0.75,
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
+                ),
+                itemCount: filteredPackages.length,
+                itemBuilder: (context, index) {
+                  var trip = filteredPackages[index];
 
-          return Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: GridView.builder(
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 0.75,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
+                  return TripCard(
+                    image: trip['image_url'] ?? 'https://via.placeholder.com/150',
+                    name: trip['name'] ?? 'Unknown',
+                    price: trip['price'] ?? 0.0,
+                    days: trip['days'] ?? '0',
+                    location_url: trip['location_url'] ?? 'No location',
+                    description: trip['description'] ?? 'No description available',
+                    packageId: trip['packageId'], // Using the package ID
+                  );
+                },
               ),
-              itemCount: packages.length,
-              itemBuilder: (context, index) {
-                final package = packages[index].data() as Map<String, dynamic>;
-                return TripCard(
-                  imageUrl: package['image'] ?? 'https://via.placeholder.com/150',  // Default image if null
-                  name: package['name'] ?? 'Unknown',                            // Default name if null
-                  price: package['price'] != null ? package['price'] : 0,                              // Default price if null
-                  days: package['days'] ?? '0',                                  // Default days if null
-                  rating: package['rating'] ?? '0',                              // Default rating if null
-                  description: package['description'] ?? 'No description available',
-                );
-              },
             ),
           );
         },
       ),
     );
   }
-
-  Drawer buildDrawer(BuildContext context) {
-    return Drawer(
-      backgroundColor: Color(0xFFFBF6DF),
-      child: Column(
-        children: [
-          Expanded(
-            child: ListView(
-              children: [
-                ListTile(
-                  leading: Icon(Icons.history, size: 50),
-                  title: Text('History', style: TextStyle(fontSize: 30, fontWeight: FontWeight.w500)),
-                  onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => NoProfilePage(userId: userId)));
-                  },
-                ),
-                ListTile(
-                  leading: Icon(Icons.feedback_outlined, size: 50),
-                  title: Text('Feedback', style: TextStyle(fontSize: 30, fontWeight: FontWeight.w500)),
-                  onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => NoProfilePage(userId: userId)));
-                  },
-                ),
-                ListTile(
-                  leading: Icon(Icons.settings, size: 50),
-                  title: Text('Settings', style: TextStyle(fontSize: 30, fontWeight: FontWeight.w500)),
-                  onTap: () {},
-                ),
-                ListTile(
-                  leading: Icon(Icons.help_center, size: 50),
-                  title: Text('Help desk', style: TextStyle(fontSize: 30, fontWeight: FontWeight.w500)),
-                  onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => helpdesk()));
-                  },
-                ),
-                ListTile(
-                  leading: Icon(Icons.logout_outlined, size: 50),
-                  title: Text('Log In', style: TextStyle(fontSize: 30, fontWeight: FontWeight.w500)),
-                  onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
-                  },
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Image.asset(
-              'assets/images/Traventurelogo1.png',
-              height: 300,
-              width: 300,
-              fit: BoxFit.cover,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
+// TripCard Widget
 class TripCard extends StatelessWidget {
+  final String image;
   final String name;
-  final double price; // Changed to int
+  final double price;
   final String days;
-  final String rating;
+  final String location_url;
   final String description;
-  final String? imageUrl;
+  final String packageId;
 
-  TripCard({
+  const TripCard({
+    Key? key,
+    required this.image,
     required this.name,
     required this.price,
     required this.days,
-    required this.rating,
+    required this.location_url,
     required this.description,
-    this.imageUrl,
-  });
+    required this.packageId,
+  }) : super(key: key);
+
+  // Function to launch a URL (Google Maps in this case)
+  Future<void> _launchUrl(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
 
   @override
-  /*
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15),
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 6,
-            spreadRadius: 2,
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
-            child: Image.network(
-              imageUrl ?? 'https://via.placeholder.com/150',
-              fit: BoxFit.cover,
-              height: 120,
-              width: double.infinity,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-                SizedBox(height: 5),
-                Text(
-                  price.toString(), // Updated price display
-                  style: TextStyle(fontSize: 14, color: Colors.black87),
-                ),
-                SizedBox(height: 5),
-                Text(
-                  '$days days',
-                  style: TextStyle(fontSize: 12, color: Colors.grey),
-                ),
-                SizedBox(height: 5),
-                Row(
-                  children: [
-                    Icon(Icons.star, color: Colors.amber, size: 16),
-                    SizedBox(width: 5),
-                    Text(rating, style: TextStyle(fontSize: 12)),
-                  ],
-                ),
-                SizedBox(height: 5),
-                Text(
-                  description,
-                  style: TextStyle(color: Colors.orangeAccent, fontSize: 12),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-*/
-
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // Navigate to the login page on tap
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) =>NotPackageDetailPage( userId:FirebaseAuth.instance.currentUser?.uid,
-          imageUrl: imageUrl,
-          title: name,
-          price: price,
-          days: days,
-          rating: rating,
-          description: description,),),
+          MaterialPageRoute(
+            builder: (context) => noPackageDetailPage(
+              userId: FirebaseAuth.instance.currentUser?.uid,
+              imageUrl: image,
+              title: name,
+              price: price,
+              days: days,
+              location_url: location_url,
+              description: description,
+              //packageId: packageId, // Pass package ID to detail page
+            ),
+          ),
         );
       },
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(15),
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 6,
-              spreadRadius: 2,
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
-              child: Image.network(
-                imageUrl ?? 'https://via.placeholder.com/150',
-                fit: BoxFit.cover,
-                height: 120,
-                width: double.infinity,
+      child: Card(
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(15),
+            color: Color(0xFFEFEFEE),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black12,
+                blurRadius: 6,
+                spreadRadius: 2,
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    name,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
+                child: Image.network(
+                  image, // Image URL from Firebase Storage
+                  fit: BoxFit.cover,
+                  height: 120,
+                  width: double.infinity,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Image.network(
+                      'https://via.placeholder.com/150', // Placeholder in case of an error
+                      height: 120,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                    );
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 5),
-                  Text(
-                    price.toString(),
-                    style: TextStyle(fontSize: 14, color: Colors.black87),
-                  ),
-                  SizedBox(height: 5),
-                  Text(
-                    '$days days',
-                    style: TextStyle(fontSize: 12, color: Colors.grey),
-                  ),
-                  SizedBox(height: 5),
-                  Row(
-                    children: [
-                      Icon(Icons.star, color: Colors.amber, size: 16),
-                      SizedBox(width: 5),
-                      Text(rating, style: TextStyle(fontSize: 12)),
-                    ],
-                  ),
-                  SizedBox(height: 5),
-                  Text(
-                    description,
-                    style: TextStyle(color: Colors.orangeAccent, fontSize: 12),
-                  ),
-                ],
+                    SizedBox(height: 5),
+                    Text(
+                      price.toString(),
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    SizedBox(height: 5),
+                    Text(
+                      days,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF000000),
+                      ),
+                    ),
+                    SizedBox(height: 5),
+                    Row(
+                      children: [
+                        SizedBox(height: 5),
+                        GestureDetector(
+                          onTap: () {
+                            _launchUrl(location_url); // Open location URL in Maps
+                          },
+                          child: Row(
+                            children: [
+                              Icon(Icons.location_on, color: Colors.blue, size: 16),
+                              SizedBox(width: 5),
+                              Text(
+                                'View on Map',
+                                style: TextStyle(fontSize: 12, color: Colors.blue),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 }
+
+// Function to fetch package names
+Future<List<String>> _fetchPackageNames() async {
+  try {
+    final snapshot = await FirebaseFirestore.instance.collection('packages').get();
+    return snapshot.docs
+        .map((doc) => (doc.data() as Map<String, dynamic>)['name'] as String)
+        .toList();
+  } catch (e) {
+    throw Exception('Failed to load package names: $e');
+  }
+}
+
+// Function to fetch package data from Firestore
+Future<List<Map<String, dynamic>>> _fetchPackages() async {
+  try {
+    final snapshot = await FirebaseFirestore.instance.collection('packages').get();
+    return snapshot.docs.map((doc) {
+      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+      return {
+        'name': data['name'] ?? 'Unknown',
+        'price': data['price'] ?? 'N/A',
+        'days': data['days'] ?? '0',
+        'location_url': data['location_url'] ?? 'No location',
+        'description': data['description'] ?? 'No description available',
+        'image_url': data['image_url'] ?? 'https://via.placeholder.com/150', // Use image URL from Firestore
+        'packageId': data['packageId'] ?? doc.id, // Ensure the package ID is available
+      };
+    }).toList();
+  } catch (e) {
+    throw Exception('Failed to load packages: $e');
+  }
+}
+
+// Function to upload image to Firebase Storage
+Future<String> _uploadImageToStorage(File imageFile) async {
+  try {
+    // Define a unique file name for the image
+    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
+
+    // Reference to Firebase Storage
+    Reference ref = FirebaseStorage.instance.ref().child('package_images').child(fileName);
+
+    // Upload the image file
+    UploadTask uploadTask = ref.putFile(imageFile);
+
+    // Wait for the upload to complete
+    TaskSnapshot snapshot = await uploadTask;
+
+    // Get the download URL of the uploaded image
+    String downloadUrl = await snapshot.ref.getDownloadURL();
+
+    return downloadUrl;
+  } catch (e) {
+    throw Exception('Error uploading image: $e');
+  }
+}
+
+// Function to add package with image and unique ID
+Future<void> _addPackageWithImage({
+  required String name,
+  required double price,
+  required String days,
+  required String location_url,
+  required String description,
+  required File imageFile,
+}) async {
+  try {
+    // Upload image to Firebase Storage
+    String imageUrl = await _uploadImageToStorage(imageFile);
+
+    // Generate a new document with an ID
+    DocumentReference docRef = FirebaseFirestore.instance.collection('packages').doc();
+
+    // Create a new package with the image URL and a unique packageId
+    await docRef.set({
+      'name': name,
+      'price': price,
+      'days': days,
+      'location_url': location_url,
+      'description': description,
+      'image': imageUrl, // Store the image URL
+      'packageId': docRef.id, // Store the generated document ID as the packageId
+    });
+
+    print('Package added with ID: ${docRef.id}');
+  } catch (e) {
+    print('Error adding package: $e');
+  }
+}
+
+// Function to logout
+Future<void> _logout(BuildContext context) async {
+  await FirebaseAuth.instance.signOut();
+  Navigator.pushAndRemoveUntil(
+    context,
+    MaterialPageRoute(builder: (context) => MyApp()),
+        (route) => false,
+  );
+}
+
+// Custom Search Delegate for searching packages
 class CustomSearchDelegate extends SearchDelegate {
+  final List<String> searchTerms;
+
+  CustomSearchDelegate({required this.searchTerms});
+
   @override
   List<Widget>? buildActions(BuildContext context) {
     return [
       IconButton(
-        icon: Icon(Icons.clear),
+        icon: const Icon(Icons.clear),
         onPressed: () {
           query = '';
         },
@@ -326,7 +553,7 @@ class CustomSearchDelegate extends SearchDelegate {
   @override
   Widget? buildLeading(BuildContext context) {
     return IconButton(
-      icon: Icon(Icons.arrow_back),
+      icon: const Icon(Icons.arrow_back),
       onPressed: () {
         close(context, null);
       },
@@ -335,32 +562,19 @@ class CustomSearchDelegate extends SearchDelegate {
 
   @override
   Widget buildResults(BuildContext context) {
-    return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection('packages').snapshots(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        }
-
-        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-          return Center(child: Text('No packages found.'));
-        }
-
-        final results = snapshot.data!.docs.where((DocumentSnapshot package) {
-          final packageName = (package.data() as Map<String, dynamic>)['name'].toLowerCase();
-          return packageName.contains(query.toLowerCase());
-        }).toList();
-
-        return ListView.builder(
-          itemCount: results.length,
-          itemBuilder: (context, index) {
-            final package = results[index].data() as Map<String, dynamic>;
-            return ListTile(
-              title: Text(package['name']),
-              onTap: () {
-                close(context, null); // Handle result selection here
-              },
-            );
+    List<String> matchQuery = [];
+    for (var term in searchTerms) {
+      if (term.toLowerCase().contains(query.toLowerCase())) {
+        matchQuery.add(term);
+      }
+    }
+    return ListView.builder(
+      itemCount: matchQuery.length,
+      itemBuilder: (context, index) {
+        return ListTile(
+          title: Text(matchQuery[index]),
+          onTap: () {
+            close(context, matchQuery[index]);
           },
         );
       },
@@ -369,29 +583,19 @@ class CustomSearchDelegate extends SearchDelegate {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection('packages').snapshots(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return Center(child: CircularProgressIndicator());
-        }
-
-        final suggestions = snapshot.data!.docs.where((DocumentSnapshot package) {
-          final packageName = (package.data() as Map<String, dynamic>)['name'].toLowerCase();
-          return packageName.contains(query.toLowerCase());
-        }).toList();
-
-        return ListView.builder(
-          itemCount: suggestions.length,
-          itemBuilder: (context, index) {
-            final package = suggestions[index].data() as Map<String, dynamic>;
-            return ListTile(
-              title: Text(package['name']),
-              onTap: () {
-                query = package['name'];
-                showResults(context);
-              },
-            );
+    List<String> matchQuery = [];
+    for (var term in searchTerms) {
+      if (term.toLowerCase().contains(query.toLowerCase())) {
+        matchQuery.add(term);
+      }
+    }
+    return ListView.builder(
+      itemCount: matchQuery.length,
+      itemBuilder: (context, index) {
+        return ListTile(
+          title: Text(matchQuery[index]),
+          onTap: () {
+            close(context, matchQuery[index]);
           },
         );
       },

@@ -283,7 +283,7 @@ class _AddPackagePageState extends State<AddPackagePage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _daysController = TextEditingController();
-  final TextEditingController _ratingController = TextEditingController();
+  final TextEditingController _locationController = TextEditingController(); // Changed from _locationUrlController
   final TextEditingController _descriptionController = TextEditingController();
 
   Uint8List? _imageBytes; // To store the selected image bytes
@@ -336,7 +336,7 @@ class _AddPackagePageState extends State<AddPackagePage> {
       'name': _nameController.text,
       'price': price,
       'days': _daysController.text,
-      'rating': _ratingController.text,
+      'location': _locationController.text, // Changed from _locationUrlController to _locationController
       'description': _descriptionController.text,
       'image_url': imageUrl, // Store the image URL
     });
@@ -358,7 +358,7 @@ class _AddPackagePageState extends State<AddPackagePage> {
             onPressed: () {
               Navigator.pop(context); // Close the dialog
               Navigator.pop(context, packageId);
-              Navigator.of(context);// Navigate back with packageId
+              Navigator.of(context); // Navigate back with packageId
             },
             child: Text('OK'),
           ),
@@ -387,7 +387,7 @@ class _AddPackagePageState extends State<AddPackagePage> {
             SizedBox(height: 24),
             _buildTextField(_daysController, 'Duration (Days)'),
             SizedBox(height: 24),
-            _buildTextField(_ratingController, 'Rating'),
+            _buildTextField(_locationController, 'Location'), // Updated to use _locationController
             SizedBox(height: 24),
             _buildTextField(_descriptionController, 'Description'),
             SizedBox(height: 20),
@@ -438,5 +438,6 @@ class _AddPackagePageState extends State<AddPackagePage> {
     );
   }
 }
+
 
 

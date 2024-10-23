@@ -35,7 +35,8 @@ dependencies:
   responsive_framework: ^0.2.0
   razorpay_flutter: ^1.2.5
   http: ^0.13.4
-
+  font_awesome_flutter: ^10.1.0
+  url_launcher: ^6.1.0
 
 
 

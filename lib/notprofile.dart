@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'main.dart';
 
 class NoProfilePage extends StatelessWidget {
-  final String userId; // Variable to hold the userId
+  final String? userId; // Variable to hold the userId
   NoProfilePage({required this.userId}); // Constructor to receive userId
 
   @override

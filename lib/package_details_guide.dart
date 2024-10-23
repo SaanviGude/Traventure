@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:cloud_firestore/cloud_firestore.dart'; // Firestore for fetching package details
 import 'editpackage.dart';
 
@@ -45,6 +46,14 @@ class _PackageGDetailPageState extends State<PackageGDetailPage> {
     }
   }
 
+  void _launchMaps(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -72,7 +81,7 @@ class _PackageGDetailPageState extends State<PackageGDetailPage> {
                 String title = data['name'] ?? 'No title';
                 double price = data['price']?.toDouble() ?? 0.0;
                 String days = data['days'] ?? 'N/A';
-                String rating = data['rating'] ?? 'No rating';
+                String location_url = data['location_url'] ?? 'No location';
                 String description = data['description'] ?? 'No description';
 
                 return Column(
@@ -107,7 +116,19 @@ class _PackageGDetailPageState extends State<PackageGDetailPage> {
                     SizedBox(height: 10),
                     Text('Duration: $days', style: TextStyle(fontSize: 18)),
                     SizedBox(height: 10),
-                    Text('Rating: $rating', style: TextStyle(fontSize: 18)),
+                    GestureDetector(
+                      onTap: () {
+                        _launchMaps(location_url); // Open the location URL in maps
+                      },
+                      child: Text(
+                        'View on Map',
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.blue, // Make the text blue to signify it's clickable
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
                     SizedBox(height: 10),
                     Text('Description: $description', style: TextStyle(fontSize: 18)),
 
