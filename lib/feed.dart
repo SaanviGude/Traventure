@@ -199,8 +199,7 @@ import 'package:cloud_firestore/cloud_firestore.dart'; // Import Firestore
 
 class FeedbackScreen extends StatelessWidget {
   final String? userId;
- // final String packageId;
-  FeedbackScreen({required this.userId,/* required this.packageId*/});
+  FeedbackScreen({required this.userId});
 
   @override
   Widget build(BuildContext context) {
@@ -225,14 +224,6 @@ class FeedbackScreen extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
-          actions: [
-            /*IconButton(
-              icon: Icon(Icons.person),
-              onPressed: () {
-                // Navigate to user profile or other actions
-              },
-            ),*/
-          ],
         ),
         body: UserHistoryWithFeedback(userId: userId),
       ),
@@ -251,9 +242,9 @@ class UserHistoryWithFeedback extends StatelessWidget {
       padding: const EdgeInsets.all(12.0),
       child: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
-            .collection('userlogin') // Collection where user history is stored
-            .doc(userId) // Document for the current user
-            .collection('history') // Collection for user's history
+            .collection('userlogin')
+            .doc(userId)
+            .collection('history')
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -265,11 +256,9 @@ class UserHistoryWithFeedback extends StatelessWidget {
           }
 
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            // If there's no data, show this message
             return Center(child: Text('No history available.'));
           }
 
-          // Build a list of history items with feedback submission
           return ListView.builder(
             itemCount: snapshot.data!.docs.length,
             itemBuilder: (context, index) {
@@ -281,7 +270,7 @@ class UserHistoryWithFeedback extends StatelessWidget {
                 price: data['price'] ?? 0,
                 date: data['date'] ?? 'Unknown Date',
                 userId: userId,
-                packageId:data['packageId'],
+                packageId: data['packageId'],
               );
             },
           );
@@ -315,41 +304,74 @@ class FeedbackCardWithForm extends StatefulWidget {
 }
 
 class _FeedbackCardWithFormState extends State<FeedbackCardWithForm> {
-  // Controllers for feedback input
   final TextEditingController feedbackController = TextEditingController();
   final TextEditingController ratingController = TextEditingController();
+  bool feedbackExists = false;
+  Map<String, dynamic>? existingFeedback;
+
+  @override
+  void initState() {
+    super.initState();
+    // Check if feedback exists for this package
+    checkFeedback();
+  }
+
+  // Method to check if feedback exists for the package
+  Future<void> checkFeedback() async {
+    var feedbackSnapshot = await FirebaseFirestore.instance
+        .collection('userlogin')
+        .doc(widget.userId)
+        .collection('feedback')
+        .where('packageId', isEqualTo: widget.packageId)
+        .get();
+
+    if (feedbackSnapshot.docs.isNotEmpty) {
+      setState(() {
+        feedbackExists = true;
+        existingFeedback = feedbackSnapshot.docs.first.data();
+      });
+    }
+  }
 
   // Method to submit feedback
   Future<void> submitFeedback() async {
     if (widget.userId != null && feedbackController.text.isNotEmpty && ratingController.text.isNotEmpty) {
-      await FirebaseFirestore.instance.collection('userlogin')
-          .doc(widget.userId)
-          .collection('feedback') // Feedback collection under the specific history item
-          .add({
-        'feedback': feedbackController.text,
-        'rating': ratingController.text,
-        'date': DateTime.now().toString(),
-        'userId': FirebaseAuth.instance.currentUser?.uid,
-        'packageId':widget.packageId,
-      });
-      await FirebaseFirestore.instance.collection('guidefeedback')
-          // Feedback collection under the specific history item
-          .add({
-        'feedback': feedbackController.text,
-        'rating': ratingController.text,
-        'date': DateTime.now().toString(),
-        'userId': FirebaseAuth.instance.currentUser?.uid,
-        'packageId':widget.packageId,
-      });
+      try {
+        // Add feedback to Firestore
+        await FirebaseFirestore.instance.collection('userlogin')
+            .doc(widget.userId)
+            .collection('feedback')
+            .add({
+          'feedback': feedbackController.text,
+          'rating': ratingController.text,
+          'date': DateTime.now().toString(),
+          'userId': FirebaseAuth.instance.currentUser?.uid,
+          'packageId': widget.packageId,
+        });
 
-      // Clear the input fields after submission
-      feedbackController.clear();
-      ratingController.clear();
+        // Clear the input fields
+        feedbackController.clear();
+        ratingController.clear();
 
-      // Optionally show a message after successful submission
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Feedback submitted successfully!')),
-      );
+        // Show a snackbar to confirm feedback submission
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Feedback submitted successfully!')),
+        );
+
+        // Delay for 1 second to let the user see the snackbar before popping the page
+        await Future.delayed(Duration(seconds: 1));
+
+        // Pop the current screen (navigate back)
+        Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => FeedbackScreen(userId: FirebaseAuth.instance.currentUser?.uid,)),
+                (route) => false);
+
+      } catch (e) {
+        // Handle any errors during the feedback submission
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error submitting feedback: $e')),
+        );
+      }
     } else {
       // Show an error message if inputs are empty
       ScaffoldMessenger.of(context).showSnackBar(
@@ -357,6 +379,7 @@ class _FeedbackCardWithFormState extends State<FeedbackCardWithForm> {
       );
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -414,52 +437,72 @@ class _FeedbackCardWithFormState extends State<FeedbackCardWithForm> {
             ),
             SizedBox(height: 12),
 
-            // Feedback input section
-            TextField(
-              controller: feedbackController,
-              decoration: InputDecoration(
-                labelText: 'Your Feedback',
-                filled: true,
-                fillColor: Color(0xFFC1C1C1),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-              maxLines: 2,
-            ),
-            SizedBox(height: 8),
-            TextField(
-              controller: ratingController,
-              decoration: InputDecoration(
-                labelText: 'Rating (out of 5)',
-                filled: true,
-                fillColor: Color(0xFFC1C1C1),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-              keyboardType: TextInputType.number,
-            ),
-            SizedBox(height: 8),
+            // Show feedback if it already exists
+            if (feedbackExists && existingFeedback != null)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Your Feedback: ${existingFeedback!['feedback']}',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'Your Rating: ${existingFeedback!['rating']}/5',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ],
+              )
+            else
+              Column(
+                children: [
+                  TextField(
+                    controller: feedbackController,
+                    decoration: InputDecoration(
+                      labelText: 'Your Feedback',
+                      filled: true,
+                      fillColor: Color(0xFFC1C1C1),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                    maxLines: 2,
+                  ),
+                  SizedBox(height: 8),
+                  TextField(
+                    controller: ratingController,
+                    decoration: InputDecoration(
+                      labelText: 'Rating (out of 5)',
+                      filled: true,
+                      fillColor: Color(0xFFC1C1C1),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                    keyboardType: TextInputType.number,
+                  ),
+                  SizedBox(height: 8),
 
-            // Submit button
-            ElevatedButton(
-              onPressed: submitFeedback,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF4D8C53),
-                padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                  // Submit button
+                  ElevatedButton(
+                    onPressed: submitFeedback,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFF4D8C53),
+                      padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                    ),
+                    child: Text(
+                      'Submit Feedback',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              child: Text(
-                'Submit Feedback',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-            ),
           ],
         ),
       ),

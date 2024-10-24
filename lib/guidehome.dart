@@ -658,10 +658,11 @@ import 'dart:io';
 import 'addpackage.dart';
 import 'helpdesk.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'guidefeed.dart';
 
 class GHomePage extends StatefulWidget {
   final String? selectedSearch;
-  final String userId;
+  final String? userId;
   GHomePage({this.selectedSearch, required this.userId});
 
   @override
@@ -844,6 +845,11 @@ class _HomePageState extends State<GHomePage> {
                         fontWeight: FontWeight.w500,
                       ),
                     ),
+                    onTap: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => GuideFeedbackPage(guideId: FirebaseAuth.instance.currentUser?.uid,)));
+                    },
+
                     /*onTap: () {
                       Navigator.push(context,
                           MaterialPageRoute(builder: (context) => FeedbackScreen()));

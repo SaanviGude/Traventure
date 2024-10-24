@@ -968,8 +968,10 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_basics/guidehome.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:typed_data';
+import 'guidehome.dart';
 import 'homepage.dart';
 /*
 
@@ -1084,13 +1086,13 @@ class _AddPackagePageState extends State<AddPackagePage> {
         actions: [
           TextButton(
             onPressed: () {
-            /*  Navigator.of(context).pop(); // Close the dialog
-              Navigator.of(context).pop(packageId);*/
+             Navigator.of(context).pop(); // Close the dialog
+              Navigator.of(context).pop(packageId);
               // Navigate back with packageId
              /* Navigator.of(context).popUntil((route) => route.isFirst);*/
-              Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (context) => HomePage(userId: FirebaseAuth.instance.currentUser?.uid,)),
-              (route) => false);
+              /*Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (context) => GHomePage(userId: FirebaseAuth.instance.currentUser?.uid,)),
+              (route) => false);*/
             },
             child: Text('OK'),
           ),
@@ -1104,8 +1106,22 @@ class _AddPackagePageState extends State<AddPackagePage> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        title: Text('Add Package'),
         backgroundColor: Color(0xFF4D8C53),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_outlined, color: Color(0xFFDCD0A1)),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+        title: Text(
+          'ADD PACKAGE',
+          style: TextStyle(
+            fontFamily: 'Serif',
+            fontSize: 28,
+            color: Color(0xFFFFFFFF),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
       backgroundColor: Color(0xFFDCD0A1),
       body: Padding(
