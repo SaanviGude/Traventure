@@ -1641,6 +1641,7 @@ class _HomePageState extends State<HomePage> {
                   SizedBox(height: 8),
                   Divider(),
                   SizedBox(height: 20),
+                //  String packageId = ,
                   ListTile(
                     leading: Icon(Icons.history, size: 50),
                     title: Text(
@@ -1810,7 +1811,7 @@ class TripCard extends StatelessWidget {
               days: days,
               location_url: location_url,
               description: description,
-              //packageId: packageId, // Pass package ID to detail page
+              packageId: packageId, // Pass package ID to detail page
             ),
           ),
         );
@@ -2091,6 +2092,8 @@ Future<void> _addPackageWithImage({
       'packageId': docRef.id, // Store the generated document ID as the packageId
     });
 
+    String PP=docRef.id;
+
     print('Package added with ID: ${docRef.id}');
   } catch (e) {
     print('Error adding package: $e');
@@ -2126,6 +2129,8 @@ class CustomSearchDelegate extends SearchDelegate {
   }
 
   @override
+
+
   Widget? buildLeading(BuildContext context) {
     return IconButton(
       icon: const Icon(Icons.arrow_back),
@@ -2177,3 +2182,4 @@ class CustomSearchDelegate extends SearchDelegate {
     );
   }
 }
+

@@ -199,8 +199,8 @@ import 'package:cloud_firestore/cloud_firestore.dart'; // Import Firestore
 
 class FeedbackScreen extends StatelessWidget {
   final String? userId;
-
-  FeedbackScreen({this.userId});
+ // final String packageId;
+  FeedbackScreen({required this.userId,/* required this.packageId*/});
 
   @override
   Widget build(BuildContext context) {
@@ -281,6 +281,7 @@ class UserHistoryWithFeedback extends StatelessWidget {
                 price: data['price'] ?? 0,
                 date: data['date'] ?? 'Unknown Date',
                 userId: userId,
+                packageId:data['packageId'],
               );
             },
           );
@@ -297,6 +298,7 @@ class FeedbackCardWithForm extends StatefulWidget {
   final double price;
   final String date;
   final String? userId;
+  final String packageId;
 
   FeedbackCardWithForm({
     required this.historyItemId,
@@ -305,6 +307,7 @@ class FeedbackCardWithForm extends StatefulWidget {
     required this.price,
     required this.date,
     required this.userId,
+    required this.packageId,
   });
 
   @override
@@ -326,6 +329,17 @@ class _FeedbackCardWithFormState extends State<FeedbackCardWithForm> {
         'feedback': feedbackController.text,
         'rating': ratingController.text,
         'date': DateTime.now().toString(),
+        'userId': FirebaseAuth.instance.currentUser?.uid,
+        'packageId':widget.packageId,
+      });
+      await FirebaseFirestore.instance.collection('guidefeedback')
+          // Feedback collection under the specific history item
+          .add({
+        'feedback': feedbackController.text,
+        'rating': ratingController.text,
+        'date': DateTime.now().toString(),
+        'userId': FirebaseAuth.instance.currentUser?.uid,
+        'packageId':widget.packageId,
       });
 
       // Clear the input fields after submission

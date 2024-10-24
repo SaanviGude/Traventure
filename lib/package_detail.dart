@@ -1183,6 +1183,7 @@ class PackageDetailPage extends StatelessWidget {
   final String days;
   final String location_url;
   final String description;
+  final String packageId;
 
   PackageDetailPage({
     required this.userId,
@@ -1191,7 +1192,8 @@ class PackageDetailPage extends StatelessWidget {
     required this.price,
     required this.days,
     required this.location_url,
-    required this.description
+    required this.description,
+    required this.packageId,
   });
 
   void _launchMaps(String url) async {
@@ -1272,9 +1274,11 @@ class PackageDetailPage extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (context) => BookingPage(
+                          imageUrl: imageUrl,
                           packageName: title,
                           userId: FirebaseAuth.instance.currentUser?.uid,
                           price: price,
+                          packageId:packageId,
                         ),
                       ),
                     );

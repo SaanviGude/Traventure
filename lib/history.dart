@@ -282,7 +282,7 @@ import 'profile.dart';
 import 'main.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart'; // Import Firestore
-
+import 'package:intl/intl.dart';
 class HistoryScreen extends StatelessWidget {
   final String? userId;
 
@@ -367,6 +367,7 @@ class UserHistoryList extends StatelessWidget {
                 title: data['packageName'] ?? 'Unknown Title',
                 price: data['price'] ?? 0,
                 date: data['date'] ?? 'Unknown Date',
+                packageId:data['packageId']
               );
             },
           );
@@ -382,17 +383,21 @@ class FeedbackCard extends StatelessWidget {
   final String title;
   final double price;
   final String date;
+  final String packageId;
 
   FeedbackCard({
     required this.imageUrl,
     required this.title,
     required this.price,
     required this.date,
+    required this.packageId,
   });
 
   @override
   Widget build(BuildContext context) {
 
+  /* DateTime dateTime = date.toDate();
+    String formattedDate = DateFormat('yyyy-MM-dd').format(dateTime);*/
     return Container(
       decoration: BoxDecoration(
         color: Color(0xFFFFFFFF),

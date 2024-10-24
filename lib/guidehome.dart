@@ -823,7 +823,8 @@ class _HomePageState extends State<GHomePage> {
                     ),
                     onTap: () {
                       Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => AddPackagePage()));
+                          MaterialPageRoute(builder: (context) => AddPackagePage(guideId: FirebaseAuth.instance.currentUser?.uid)));
+
                     },
                   ),
                   ListTile(
@@ -988,6 +989,7 @@ class TripCard extends StatelessWidget {
               days: days,
               rating: rating,
               description: description,*/
+
               packageId: packageId, // Pass package ID to detail page
             ),
           ),
@@ -1194,7 +1196,7 @@ Future<List<String>> _fetchPackageNames() async {
 // Function to fetch package data from Firestore
 Future<List<Map<String, dynamic>>> _fetchPackages() async {
   try {
-    final snapshot = await FirebaseFirestore.instance.collection('packages').get();
+    final snapshot = await FirebaseFirestore.instance.collection('packages') .where('guideId', isEqualTo: FirebaseAuth.instance.currentUser?.uid) .get();
     return snapshot.docs.map((doc) {
       Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
       return {
@@ -1205,6 +1207,8 @@ Future<List<Map<String, dynamic>>> _fetchPackages() async {
         'description': data['description'] ?? 'No description available',
         'image_url': data['image_url'] ?? 'https://via.placeholder.com/150', // Use image URL from Firestore
         'packageId': data['packageId'] ?? doc.id, // Ensure the package ID is available
+
+
       };
     }).toList();
   } catch (e) {
@@ -1261,6 +1265,7 @@ Future<void> _addPackageWithImage({
       'description': description,
       'image': imageUrl, // Store the image URL
       'packageId': docRef.id, // Store the generated document ID as the packageId
+      'guideId': FirebaseAuth.instance.currentUser?.uid, // Store the guide's ID
     });
 
     print('Package added with ID: ${docRef.id}');

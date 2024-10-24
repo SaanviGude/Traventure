@@ -405,9 +405,11 @@ import 'payment.dart';
 class BookingPage extends StatefulWidget {
   final String packageName;
   final double price;
+  final String? imageUrl;
   // final String? selectedSearch;
   final String? userId;
-  BookingPage({required this.packageName,required this.userId,required this.price});
+  final String packageId;
+  BookingPage({required this.imageUrl,required this.packageName,required this.userId,required this.price,required this.packageId});
 
 
   @override
@@ -462,11 +464,13 @@ class _BookingPageState extends State<BookingPage> {
       context,
       MaterialPageRoute(
         builder: (context) => PaymentPage(
+          imageUrl:widget.imageUrl.toString(),
           userId: FirebaseAuth.instance.currentUser?.uid,
           packageName: widget.packageName,
           travelersInfo: travelersInfo, // Pass the travelers' information
           numberOfTravelers: numberOfTravelers,
-          price: widget.price,// Pass the number of travelers
+          price: widget.price,
+          packageId:widget.packageId// Pass the number of travelers
         ),
       ),
     );

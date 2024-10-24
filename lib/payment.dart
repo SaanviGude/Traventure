@@ -868,21 +868,26 @@ import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'homepage.dart';
-import 'package:intl/intl.dart'; // For formatting the date
 
 class PaymentPage extends StatefulWidget {
+  // final String imageUrl;
   final String packageName;
+  final String packageId;
+  final String imageUrl;
   final String? userId;
   final List<Map<String, dynamic>> travelersInfo; // Travelers' info
   final int numberOfTravelers;
   final double price;
 
   PaymentPage({
+    //  required this.imageUrl,
     required this.userId,
     required this.packageName,
+    required this.imageUrl,
     required this.travelersInfo,
     required this.numberOfTravelers,
     required this.price,
+    required this.packageId,
   });
 
   @override
@@ -921,6 +926,9 @@ class _PaymentPageState extends State<PaymentPage> {
         'contact': '', // Optionally prefill contact
         'email': '', // Optionally prefill email
       },
+      /*'external': {
+        'wallets': ['paytm', 'gpay'] // Allow UPI and Paytm wallets
+      },*/
     };
 
     try {
@@ -931,55 +939,46 @@ class _PaymentPageState extends State<PaymentPage> {
   }
 
   // Handle Razorpay payment success
-  void _handlePaymentSuccess(PaymentSuccessResponse response) async {
+  void _handlePaymentSuccess(PaymentSuccessResponse response) {
     print("Payment Successful: ${response.paymentId}");
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Payment Successful!')),
+    );
 
-    // Current date using Firestore Timestamp or DateTime
-    DateTime now = DateTime.now();
-    String formattedDate = DateFormat('yyyy-MM-dd – kk:mm').format(now);
+    FirebaseFirestore.instance.collection('userlogin')
+        .doc(widget.userId)
+        .collection('history')
+        .add({
+      'imageUrl':widget.imageUrl,
+      'packageName': widget.packageName,
+      'travelersInfo': widget.travelersInfo,
+      'numberOfTravelers': widget.numberOfTravelers,
+      'price': widget.price.toDouble(),
+      'paymentId': response.paymentId,
+      'packageId':widget.packageId,
+      'date': DateTime.now().toString(), // Booking date
+    });
 
-    try {
-      // First, add the payment details to the user's history sub-collection
-      await FirebaseFirestore.instance
-          .collection('userlogin')
-          .doc(widget.userId)
-          .collection('history')
-          .add({
-        'imageUrl':
-        'https://firebasestorage.googleapis.com/v0/b/flutter-basics-85cec.appspot.com/o/history_image%2FScreenshot%202024-07-28%20220809.png?alt=media&token=2be525d0-f2f3-459d-9ec4-3b9a7bd91867',
-        'packageName': widget.packageName,
-        'travelersInfo': widget.travelersInfo,
-        'numberOfTravelers': widget.numberOfTravelers,
-        'price': widget.price.toDouble(),
-        'paymentId': response.paymentId,
-        'date': formattedDate, // Use the formatted date
-      });
+    // Add booking details to global bookings collection
+    FirebaseFirestore.instance.collection('bookings')
+        .add({
+      'userId': widget.userId,
+      'packageName': widget.packageName,
+      'travelersInfo': widget.travelersInfo,
+      'numberOfTravelers': widget.numberOfTravelers,
+      'price': totalAmount.toDouble(),
+      'paymentId': response.paymentId,
+      'date': DateTime.now().toString(), // Booking date
+    });
 
-      // Next, add the booking to the global 'bookings' collection
-      await FirebaseFirestore.instance.collection('bookings').add({
-        'userId': widget.userId,
-        'packageName': widget.packageName,
-        'travelersInfo': widget.travelersInfo,
-        'numberOfTravelers': widget.numberOfTravelers,
-        'price': totalAmount.toDouble(),
-        'paymentId': response.paymentId,
-        'date': formattedDate, // Use the formatted date
-      });
-
-      // If successful, navigate to the confirmation page
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) =>
-              BookingConfirmationPage(paymentId: response.paymentId),
-        ),
-      );
-    } catch (e) {
-      print("Error saving payment details: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error saving payment details: $e')),
-      );
-    }
+    // Optionally, navigate to a confirmation page or save payment info to database
+    // Example:
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => BookingConfirmationPage(paymentId: response.paymentId),
+      ),
+    );
   }
 
   // Handle Razorpay payment error
@@ -1029,13 +1028,17 @@ class _PaymentPageState extends State<PaymentPage> {
             ElevatedButton(
               onPressed: () {
                 // Navigate back to the home page
-              },
+                /*Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (context) => HomePage(selectedSearch: null,userId: FirebaseAuth.instance.currentUser?.uid,)), // Replace with your actual home page widget
+                      (Route<dynamic> route) => false, // Remove all previous routes
+                );*/
+              },// Reopen checkout if needed
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                 backgroundColor: Color(0xFF5E8953),
               ),
               child: Text(
-                'Home Page',
+                'home page',
                 style: TextStyle(fontSize: 18, color: Colors.white),
               ),
             ),
@@ -1098,9 +1101,9 @@ class BookingConfirmationPage extends StatelessWidget {
             ),
 
           ],
+
         ),
       ),
     );
   }
 }
-
