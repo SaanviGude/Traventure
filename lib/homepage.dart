@@ -1595,8 +1595,15 @@ class _HomePageState extends State<HomePage> {
             color: Color(0xFFDCD0A1),
           ),
         ],
-        title: Text('User Homepage', overflow: TextOverflow.ellipsis),
-        centerTitle: true,
+        title: Text(
+          'USER HOMEPAGE',
+          style: TextStyle(
+            fontFamily: 'Serif',
+            fontSize: 28,
+            color: Color(0xFFFFFFFF),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
       drawer: Drawer(
         backgroundColor: Color(0xFFFBF6DF),

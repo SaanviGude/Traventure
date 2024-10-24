@@ -287,11 +287,22 @@ class _ProfilePageState extends State<UserProfilePage> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        leading: IconButton(onPressed: () {
-          Navigator.of(context).pop();
-        }, icon: const Icon(Icons.arrow_back_outlined)),
-        title: Text('Create Profile'),
-        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_outlined, color: Color(0xFFDCD0A1)),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+        title:
+        Text(
+          'CREATE PROFILE',
+          style: TextStyle(
+            fontFamily: 'Serif',
+            fontSize: 28,
+            color: Color(0xFFFFFFFF),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         backgroundColor: Color(0xFF255A39),
       ),
       body: Container(

@@ -149,7 +149,7 @@ class _EditProfileState extends State<EditProfile> {
                   AppBar(
                     backgroundColor: Color(0xFF315E3C),
                     leading: IconButton(
-                      icon: const Icon(Icons.arrow_back_outlined),
+                      icon: const Icon(Icons.arrow_back_outlined, color: Color(0xFFDCD0A1)),
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
@@ -157,13 +157,12 @@ class _EditProfileState extends State<EditProfile> {
                     title: Text(
                       'EDIT PROFILE',
                       style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 24,
-                        fontFamily: 'Arial',
-                        letterSpacing: 2.0,
+                        fontFamily: 'Serif',
+                        fontSize: 28,
+                        color: Color(0xFFFFFFFF),
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                    centerTitle: true,
                   ),
                   Expanded(
                     child: Center(

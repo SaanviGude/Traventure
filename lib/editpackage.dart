@@ -164,7 +164,22 @@ class _EditPackagePageState extends State<EditPackagePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Edit Package'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_outlined, color: Color(0xFFDCD0A1)),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+        title:
+        Text(
+          'EDIT PACKAGE',
+          style: TextStyle(
+            fontFamily: 'Serif',
+            fontSize: 28,
+            color: Color(0xFFFFFFFF),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         backgroundColor: Color(0xFF5E8953),
       ),
       body: FutureBuilder<Map<String, dynamic>?>(

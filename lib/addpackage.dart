@@ -877,7 +877,22 @@ class _AddPackagePageState extends State<AddPackagePage> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        title: Text('Add Package'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_outlined, color: Color(0xFFDCD0A1)),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+        title:
+        Text(
+          'ADD PACKAGE',
+          style: TextStyle(
+            fontFamily: 'Serif',
+            fontSize: 28,
+            color: Color(0xFFFFFFFF),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         backgroundColor: Color(0xFF4D8C53),
       ),
       backgroundColor: Color(0xFFDCD0A1),
