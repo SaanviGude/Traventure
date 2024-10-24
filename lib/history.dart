@@ -311,7 +311,7 @@ class HistoryScreen extends StatelessWidget {
             ),
           ),
           actions: [
-            IconButton(
+            /*IconButton(
               icon: Icon(Icons.person),
               onPressed: () {
                 Navigator.push(
@@ -319,7 +319,7 @@ class HistoryScreen extends StatelessWidget {
                   MaterialPageRoute(builder: (context) => ProfilePage(userId: FirebaseAuth.instance.currentUser?.uid)),
                 );
               },
-            ),
+            ),*/
           ],
         ),
         body: UserHistoryList(userId: FirebaseAuth.instance.currentUser?.uid),

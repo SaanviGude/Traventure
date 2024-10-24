@@ -191,7 +191,7 @@ class helpdesk extends StatelessWidget {
         appBar: AppBar(
           backgroundColor: Color(0xFF235537), // Green app bar color
           leading: IconButton(
-            icon: Icon(Icons.arrow_back),
+            icon: const Icon(Icons.arrow_back_outlined, color: Color(0xFFDCD0A1)),
             onPressed: () {
               Navigator.of(context).pop();
             },
@@ -201,7 +201,7 @@ class helpdesk extends StatelessWidget {
             style: TextStyle(
               fontFamily: 'Serif',
               fontSize: 28,
-              color: Color(0xFFF3E5B5),
+              color: Color(0xFFFFFFFF),
               fontWeight: FontWeight.bold,
             ),
           ),

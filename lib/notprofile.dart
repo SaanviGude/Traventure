@@ -10,13 +10,20 @@ class NoProfilePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_outlined),
+          icon: const Icon(Icons.arrow_back_outlined, color: Color(0xFFDCD0A1)),
           onPressed: () {
             Navigator.of(context).pop();
           },
         ),
-        title: Text('Profile'),
-        centerTitle: true,
+        title: Text(
+          ' PROFILE',
+          style: TextStyle(
+            fontFamily: 'Serif',
+            fontSize: 28,
+            color: Color(0xFFFFFFFF),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         backgroundColor: Color(0xFF255A39),
       ),
       body: Container(

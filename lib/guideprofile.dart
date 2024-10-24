@@ -51,6 +51,25 @@ class _ProfilePageState extends State<GuideProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_outlined, color: Color(0xFFDCD0A1)),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+        title:
+        Text(
+          'CREATE PROFILE',
+          style: TextStyle(
+            fontFamily: 'Serif',
+            fontSize: 28,
+            color: Color(0xFFFFFFFF),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: Color(0xFF255A39),
+      ),
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(

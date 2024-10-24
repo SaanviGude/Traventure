@@ -220,7 +220,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                       SizedBox(height: 16),
-                      Row(
+                      /*Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           IconButton(
@@ -237,7 +237,7 @@ class _LoginPageState extends State<LoginPage> {
                             },
                           ),
                         ],
-                      ),
+                      ),*/
                     ],
                   ),
                 ),
@@ -354,7 +354,21 @@ class _LoginPageState extends State<LoginPage> {
   return Scaffold(
     resizeToAvoidBottomInset: false,
   appBar: AppBar(
-  title: Text('Guide Login', style: TextStyle(color: Color(0xFFEEE2B3))),
+    leading: IconButton(
+      icon: const Icon(Icons.arrow_back_outlined, color: Color(0xFFDCD0A1)),
+      onPressed: () {
+        Navigator.of(context).pop();
+      },
+    ),
+  title: Text(
+    'GUIDE LOGIN',
+    style: TextStyle(
+      fontFamily: 'Serif',
+      fontSize: 28,
+      color: Color(0xFFFFFFFF),
+      fontWeight: FontWeight.bold,
+    ),
+  ),
   backgroundColor: Color(0xFF255A39),
   ),
   body: Container(

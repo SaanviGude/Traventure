@@ -211,7 +211,7 @@ class FeedbackScreen extends StatelessWidget {
         appBar: AppBar(
           backgroundColor: Color(0xFF4D8C53),
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back_outlined),
+            icon: const Icon(Icons.arrow_back_outlined, color: Color(0xFFDCD0A1)),
             onPressed: () {
               Navigator.of(context).pop();
             },
@@ -226,12 +226,12 @@ class FeedbackScreen extends StatelessWidget {
             ),
           ),
           actions: [
-            IconButton(
+            /*IconButton(
               icon: Icon(Icons.person),
               onPressed: () {
                 // Navigate to user profile or other actions
               },
-            ),
+            ),*/
           ],
         ),
         body: UserHistoryWithFeedback(userId: userId),
@@ -442,6 +442,7 @@ class _FeedbackCardWithFormState extends State<FeedbackCardWithForm> {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
+                  color: Colors.white,
                 ),
               ),
             ),
