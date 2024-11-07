@@ -962,17 +962,6 @@ class _AddPackagePageState extends State<AddPackagePage> {
 
 */
 */*/
-
-
-import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_basics/guidehome.dart';
-import 'package:image_picker/image_picker.dart';
-import 'dart:typed_data';
-import 'guidehome.dart';
-import 'homepage.dart';
 /*
 
 
@@ -998,10 +987,17 @@ class _AddPackagePageState extends State<AddPackagePage> {
 
 */
 
+
+import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:typed_data';
+
 class AddPackagePage extends StatefulWidget {
   final String? guideId; // Guide ID passed from GuideHome
 
-  // Constructor that takes the guideId as a parameter
   AddPackagePage({required this.guideId});
 
   @override
@@ -1015,16 +1011,15 @@ class _AddPackagePageState extends State<AddPackagePage> {
   final TextEditingController _locationUrlController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
 
-  Uint8List? _imageBytes; // To store the selected image bytes
-  final ImagePicker _picker = ImagePicker(); // For picking the image
+  Uint8List? _imageBytes;
+  final ImagePicker _picker = ImagePicker();
 
   Future<void> _pickImage() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
-      // Read image bytes asynchronously
       final bytes = await pickedFile.readAsBytes();
       setState(() {
-        _imageBytes = bytes; // Store the bytes in _imageBytes
+        _imageBytes = bytes;
       });
     }
   }
@@ -1057,24 +1052,18 @@ class _AddPackagePageState extends State<AddPackagePage> {
       return;
     }
 
-    // Upload the image to Firebase Storage and get the download URL
     String? imageUrl = await _uploadImageToStorage();
-
-    // Add package details to Firestore and get the document reference
     DocumentReference docRef = await FirebaseFirestore.instance.collection('packages').add({
       'name': _nameController.text,
       'price': price,
       'days': _daysController.text,
-      'location_url': _locationUrlController.text, // Store the location URL
+      'location_url': _locationUrlController.text,
       'description': _descriptionController.text,
-      'image_url': imageUrl, // Store the image URL
+      'image_url': imageUrl,
       'guideId': widget.guideId,
     });
 
-    // Pass the package ID to the success dialog or next page
-    String packageId = docRef.id;
-
-    _showSuccessDialog(packageId); // Pass the ID to the success dialog
+    _showSuccessDialog(docRef.id);
   }
 
   void _showSuccessDialog(String packageId) {
@@ -1086,13 +1075,8 @@ class _AddPackagePageState extends State<AddPackagePage> {
         actions: [
           TextButton(
             onPressed: () {
-             Navigator.of(context).pop(); // Close the dialog
+              Navigator.of(context).pop();
               Navigator.of(context).pop(packageId);
-              // Navigate back with packageId
-             /* Navigator.of(context).popUntil((route) => route.isFirst);*/
-              /*Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (context) => GHomePage(userId: FirebaseAuth.instance.currentUser?.uid,)),
-              (route) => false);*/
             },
             child: Text('OK'),
           ),
@@ -1106,7 +1090,7 @@ class _AddPackagePageState extends State<AddPackagePage> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        backgroundColor: Color(0xFF4D8C53),
+        backgroundColor: Color(0xFF235537),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_outlined, color: Color(0xFFDCD0A1)),
           onPressed: () {
@@ -1128,25 +1112,22 @@ class _AddPackagePageState extends State<AddPackagePage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-
-            SizedBox(height: 24),
-            _buildTextField(_nameController, 'Package Name'),
-            SizedBox(height: 24),
-            _buildTextField(_priceController, 'Price', isNumeric: true),
-            SizedBox(height: 24),
-            _buildTextField(_daysController, 'Duration (Days)'),
-            SizedBox(height: 24),
-            _buildTextField(_locationUrlController, 'Location URL'), // New location URL field
-            SizedBox(height: 24),
-
-            _buildTextField(_descriptionController, 'Description'),
-
+            SizedBox(height: 16),
+            _buildTextField(_nameController, 'PACKAGE NAME'),
+            SizedBox(height: 16),
+            _buildTextField(_priceController, 'PRICE', isNumeric: true),
+            SizedBox(height: 16),
+            _buildTextField(_daysController, 'DURATION'),
+            SizedBox(height: 16),
+            _buildTextField(_locationUrlController, 'LOCATION'),
+            SizedBox(height: 16),
+            _buildTextField(_descriptionController, 'DESCRIPTION'),
             SizedBox(height: 20),
             GestureDetector(
-              onTap: _pickImage, // Open image picker when tapped
+              onTap: _pickImage,
               child: Container(
                 width: double.infinity,
-                height: 200,
+                height: 180,
                 decoration: BoxDecoration(
                   color: Color(0xFFEDEDEA),
                   border: Border.all(color: Colors.grey),
@@ -1165,8 +1146,20 @@ class _AddPackagePageState extends State<AddPackagePage> {
             ),
             SizedBox(height: 20),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFF235537),
+                //primary: Color(0xFF4D8C53),
+                //onPrimary: Color(0xFFDCD0A1),
+                padding: EdgeInsets.symmetric(vertical: 16, horizontal: 32),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(25),
+                ),
+              ),
               onPressed: _addPackage,
-              child: Text('Add Package'),
+              child: Text(
+                'SUBMIT',
+                style: TextStyle(fontSize: 16, color: Colors.white),
+              ),
             ),
           ],
         ),
@@ -1176,19 +1169,30 @@ class _AddPackagePageState extends State<AddPackagePage> {
 
   Widget _buildTextField(TextEditingController controller, String label, {bool isNumeric = false}) {
     return Container(
-      padding: EdgeInsets.all(16),
+      padding: EdgeInsets.symmetric(vertical: 4, horizontal: 16),
       decoration: BoxDecoration(
         color: Color(0xFFFFFFFF),
-        borderRadius: BorderRadius.circular(25),
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.5),
+            blurRadius: 6,
+            offset: Offset(0, 2),
+          ),
+        ],
       ),
       child: TextField(
         controller: controller,
         keyboardType: isNumeric ? TextInputType.number : TextInputType.text,
-        decoration: InputDecoration(labelText: label),
+        decoration: InputDecoration(
+          labelText: label,
+          border: InputBorder.none,
+        ),
       ),
     );
   }
 }
+
 
 
 

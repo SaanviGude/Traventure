@@ -208,7 +208,7 @@ class FeedbackScreen extends StatelessWidget {
       home: Scaffold(
         backgroundColor: Color(0xFFDCD0A1),
         appBar: AppBar(
-          backgroundColor: Color(0xFF4D8C53),
+          backgroundColor: Color(0xFF1F6029),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_outlined, color: Color(0xFFDCD0A1)),
             onPressed: () {
@@ -385,9 +385,21 @@ class _FeedbackCardWithFormState extends State<FeedbackCardWithForm> {
   Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
+      decoration: /*BoxDecoration(
         color: Color(0xFFFFFFFF),
         borderRadius: BorderRadius.circular(16),
+      ),*/
+      BoxDecoration(
+        color: Color(0xFFFFFFFF),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1), // Light shadow color
+            spreadRadius: 1,  // The spread of the shadow
+            blurRadius: 8,    // How blurry the shadow is
+            offset: Offset(0, 4), // Shadow position (vertical, horizontal)
+          ),
+        ],
       ),
       child: Padding(
         padding: const EdgeInsets.all(12.0),
@@ -397,7 +409,7 @@ class _FeedbackCardWithFormState extends State<FeedbackCardWithForm> {
             Row(
               children: [
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(50),
+                  borderRadius: BorderRadius.circular(10),
                   child: Image.network(
                     widget.imageUrl,
                     height: 70,
@@ -413,15 +425,22 @@ class _FeedbackCardWithFormState extends State<FeedbackCardWithForm> {
                       widget.title,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 20,
+                        fontSize: 17.5,
+                        fontFamily: 'serif'
                       ),
                     ),
-                    Text(
-                      widget.price.toString(),
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
+                    Row(
+                      children: [
+                        Icon(Icons.currency_rupee, color: Color(0xFF1F6029), size: 15, weight: 15),
+                        Text(
+                          widget.price.toString(),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Color(0xFF1F6029)
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -432,36 +451,65 @@ class _FeedbackCardWithFormState extends State<FeedbackCardWithForm> {
               alignment: Alignment.centerRight,
               child: Text(
                 widget.date,
-                style: TextStyle(color: Colors.black),
+                style: TextStyle(color: Colors.deepOrange, fontWeight: FontWeight.bold),
               ),
             ),
             SizedBox(height: 12),
 
             // Show feedback if it already exists
+            // Show feedback if it already exists
             if (feedbackExists && existingFeedback != null)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Your Feedback: ${existingFeedback!['feedback']}',
-                    style: TextStyle(fontSize: 16),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    'Your Rating: ${existingFeedback!['rating']}/5',
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ],
+              Container(
+                padding: EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.black, // Light background color for the feedback container
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1), // Light shadow color
+                      spreadRadius: 1,
+                      blurRadius: 6,
+                      offset: Offset(0, 4), // Vertical shadow position
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.feedback_outlined, color: Colors.redAccent, size: 22),
+                        SizedBox(width: 5),
+                        Text(
+                          'Feedback: ${existingFeedback!['feedback']}',
+                          style: TextStyle(fontSize: 18, color: Colors.white),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Icon(Icons.star, color: Colors.yellowAccent, size: 22),
+                        SizedBox(width: 5),
+                        Text(
+                          'Rating: ${existingFeedback!['rating']}/5',
+                          style: TextStyle(fontSize: 18, color: Colors.white),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               )
+
             else
               Column(
                 children: [
                   TextField(
                     controller: feedbackController,
                     decoration: InputDecoration(
-                      labelText: 'Your Feedback',
+                      labelText: 'Feedback',
                       filled: true,
-                      fillColor: Color(0xFFC1C1C1),
+                      fillColor: Color(0xFFCCCCCC),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
                         borderSide: BorderSide.none,
@@ -469,13 +517,13 @@ class _FeedbackCardWithFormState extends State<FeedbackCardWithForm> {
                     ),
                     maxLines: 2,
                   ),
-                  SizedBox(height: 8),
+                  SizedBox(height: 12),
                   TextField(
                     controller: ratingController,
                     decoration: InputDecoration(
-                      labelText: 'Rating (out of 5)',
+                      labelText: 'Rating',
                       filled: true,
-                      fillColor: Color(0xFFC1C1C1),
+                      fillColor: Color(0xFFCCCCCC),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
                         borderSide: BorderSide.none,
@@ -483,17 +531,17 @@ class _FeedbackCardWithFormState extends State<FeedbackCardWithForm> {
                     ),
                     keyboardType: TextInputType.number,
                   ),
-                  SizedBox(height: 8),
+                  SizedBox(height: 12),
 
                   // Submit button
                   ElevatedButton(
                     onPressed: submitFeedback,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFF4D8C53),
+                      backgroundColor: Color(0xFF1F6029),
                       padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
                     ),
                     child: Text(
-                      'Submit Feedback',
+                      'Submit',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -501,6 +549,7 @@ class _FeedbackCardWithFormState extends State<FeedbackCardWithForm> {
                       ),
                     ),
                   ),
+                  SizedBox(width: 10),
                 ],
               ),
           ],

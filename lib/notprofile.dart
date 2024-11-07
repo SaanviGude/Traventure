@@ -35,29 +35,29 @@ class NoProfilePage extends StatelessWidget {
         ),
         child: Center(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            padding: const EdgeInsets.symmetric(horizontal: 18.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 // Profile image section
                 CircleAvatar(
-                  radius: 60,
-                  backgroundImage: AssetImage('assets/images/profile-user.png'), // Dummy image
+                  radius: 75,
+                  backgroundImage: AssetImage('assets/images/profile-user.png'), // Placeholder image
                   backgroundColor: Colors.white,
                 ),
-                SizedBox(height: 20),
+                SizedBox(height: 25),
 
-                // Card-like container for the whole content (text and button)
+                // Card-like container for profile information and actions
                 Container(
-                  padding: EdgeInsets.all(20.0),
+                  padding: EdgeInsets.all(24.0),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.9), // Slight transparency for better blend
-                    borderRadius: BorderRadius.circular(12),
+                    color: Color(0xFFE4D3A2),
+                    borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
-                        blurRadius: 10,
-                        spreadRadius: 2,
+                        color: Colors.black26,
+                        blurRadius: 12,
+                        offset: Offset(0, 6),
                       ),
                     ],
                   ),
@@ -66,29 +66,29 @@ class NoProfilePage extends StatelessWidget {
                     children: [
                       // "No Profile Found" Text
                       Text(
-                        'USER',
+                        'USER NOT FOUND',
                         style: TextStyle(
-                          fontSize: 24,
+                          fontSize: 26,
                           fontWeight: FontWeight.bold,
-                          color: Colors.black,
+                          color: Colors.black87,
                         ),
                       ),
-                      SizedBox(height: 10),
+                      SizedBox(height: 3),
 
                       // User ID
                       Text(
-                        'User ID: $userId',
+                        'ID: $userId',
                         style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.black,
+                          fontSize: 16,
+                          color: Colors.black87,
                         ),
                       ),
                       SizedBox(height: 20),
 
-                      // Login button inside the same box
+                      // Login button with similar styling to the Profile page
                       ElevatedButton(
                         onPressed: () {
-                          // Handle Login action
+                          // Navigate to Login page
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -97,21 +97,22 @@ class NoProfilePage extends StatelessWidget {
                           );
                         },
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 32.0),
+                          padding: const EdgeInsets.symmetric(vertical: 14.0, horizontal: 40.0),
                           child: Text(
-                            'Login',
+                            'LOGIN',
                             style: TextStyle(
-                              fontSize: 18,
-                              color: Color(0xFFE4D59F),
+                              fontSize: 20,
+                              color: Color(0xFFFFFFFF),
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFF4D8C53),
+                          backgroundColor: Color(0xFF255A39),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(20),
                           ),
+                          elevation: 5,
                         ),
                       ),
                     ],

@@ -417,17 +417,19 @@ class BookingPage extends StatefulWidget {
 }
 
 class _BookingPageState extends State<BookingPage> {
-  int numberOfTravelers = 1;  // Default number of travelers
-  List<Map<String, dynamic>> travelersInfo = [];  // To store travelers' information
+  int numberOfTravelers = 1; // Default number of travelers
+  List<Map<String, dynamic>> travelersInfo = [
+  ]; // To store travelers' information
 
   @override
   void initState() {
     super.initState();
     // Initialize traveler info with one traveler
-    travelersInfo = List.generate(numberOfTravelers, (index) => {
+    travelersInfo = List.generate(numberOfTravelers, (index) =>
+    {
       'name': '',
       'age': '',
-      'gender': 'Male',  // Default gender
+      'gender': 'Male', // Default gender
       'aadhar': '',
       'phone': '',
     });
@@ -437,7 +439,8 @@ class _BookingPageState extends State<BookingPage> {
   void updateNumberOfTravelers(int count) {
     setState(() {
       numberOfTravelers = count;
-      travelersInfo = List.generate(count, (index) => {
+      travelersInfo = List.generate(count, (index) =>
+      {
         'name': '',
         'age': '',
         'gender': 'Male',
@@ -463,21 +466,25 @@ class _BookingPageState extends State<BookingPage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => PaymentPage(
-          imageUrl:widget.imageUrl.toString(),
-          userId: FirebaseAuth.instance.currentUser?.uid,
-          packageName: widget.packageName,
-          travelersInfo: travelersInfo, // Pass the travelers' information
-          numberOfTravelers: numberOfTravelers,
-          price: widget.price,
-          packageId:widget.packageId// Pass the number of travelers
-        ),
+        builder: (context) =>
+            PaymentPage(
+                imageUrl: widget.imageUrl.toString(),
+                userId: FirebaseAuth.instance.currentUser?.uid,
+                packageName: widget.packageName,
+                travelersInfo: travelersInfo,
+                // Pass the travelers' information
+                numberOfTravelers: numberOfTravelers,
+                price: widget.price,
+                packageId: widget.packageId // Pass the number of travelers
+            ),
       ),
     );
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0xFFDCD0A1),
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_outlined, color: Color(0xFFDCD0A1)),
@@ -485,8 +492,7 @@ class _BookingPageState extends State<BookingPage> {
             Navigator.of(context).pop();
           },
         ),
-        title:
-        Text(
+        title: Text(
           'Book ${widget.packageName}',
           style: TextStyle(
             fontFamily: 'Serif',
@@ -495,7 +501,7 @@ class _BookingPageState extends State<BookingPage> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: Color(0xFF5E8953),
+        backgroundColor: Color(0xFF1F6029),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -505,14 +511,16 @@ class _BookingPageState extends State<BookingPage> {
             // Input field for the number of travelers
             Text(
               'Number of Travelers:',
-              style: TextStyle(fontSize: 18),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 10),
             TextField(
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
-                hintText: 'Enter number of travelers',
+                hintText: 'Enter no. of travelers',
+                filled: true,
+                fillColor: Colors.grey[200],
               ),
               onChanged: (value) {
                 int? count = int.tryParse(value);
@@ -526,91 +534,127 @@ class _BookingPageState extends State<BookingPage> {
             // Generate traveler input fields dynamically
             Column(
               children: List.generate(numberOfTravelers, (index) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Traveler ${index + 1} Information:',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(height: 10),
-                    // Name input
-                    TextField(
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Name',
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 20.0),
+                  padding: const EdgeInsets.all(16.0),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 8,
+                        offset: Offset(0, 4),
                       ),
-                      onChanged: (value) {
-                        travelersInfo[index]['name'] = value;
-                      },
-                    ),
-                    SizedBox(height: 10),
-                    // Age input
-                    TextField(
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Age',
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Traveler ${index + 1} Information',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
                       ),
-                      onChanged: (value) {
-                        travelersInfo[index]['age'] = value;
-                      },
-                    ),
-                    SizedBox(height: 10),
-                    // Gender selection
-                    DropdownButtonFormField<String>(
-                      value: travelersInfo[index]['gender'],
-                      items: ['Male', 'Female', 'Other']
-                          .map((gender) => DropdownMenuItem(
-                        value: gender,
-                        child: Text(gender),
-                      ))
-                          .toList(),
-                      onChanged: (value) {
-                        travelersInfo[index]['gender'] = value!;
-                      },
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Gender',
+                      SizedBox(height: 10),
+
+                      // Name input
+                      TextField(
+                        decoration: InputDecoration(
+                          labelText: 'Name',
+                          border: OutlineInputBorder(),
+                          filled: true,
+                          fillColor: Colors.white,
+                        ),
+                        onChanged: (value) {
+                          travelersInfo[index]['name'] = value;
+                        },
                       ),
-                    ),
-                    SizedBox(height: 10),
-                    // Aadhar number input
-                    TextField(
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Aadhar No.',
+                      SizedBox(height: 10),
+
+                      // Age input
+                      TextField(
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          labelText: 'Age',
+                          border: OutlineInputBorder(),
+                          filled: true,
+                          fillColor: Colors.white,
+                        ),
+                        onChanged: (value) {
+                          travelersInfo[index]['age'] = value;
+                        },
                       ),
-                      onChanged: (value) {
-                        travelersInfo[index]['aadhar'] = value;
-                      },
-                    ),
-                    SizedBox(height: 10),
-                    // Phone number input
-                    TextField(
-                      keyboardType: TextInputType.phone,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Phone No.',
+                      SizedBox(height: 10),
+
+                      // Gender selection
+                      DropdownButtonFormField<String>(
+                        value: travelersInfo[index]['gender'],
+                        items: ['Male', 'Female', 'Other']
+                            .map((gender) =>
+                            DropdownMenuItem(
+                              value: gender,
+                              child: Text(gender),
+                            ))
+                            .toList(),
+                        onChanged: (value) {
+                          travelersInfo[index]['gender'] = value!;
+                        },
+                        decoration: InputDecoration(
+                          labelText: 'Gender',
+                          border: OutlineInputBorder(),
+                          filled: true,
+                          fillColor: Colors.white,
+                        ),
                       ),
-                      onChanged: (value) {
-                        travelersInfo[index]['phone'] = value;
-                      },
-                    ),
-                    SizedBox(height: 20),
-                  ],
+                      SizedBox(height: 10),
+
+                      // Aadhar number input
+                      TextField(
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          labelText: 'Aadhar No.',
+                          border: OutlineInputBorder(),
+                          filled: true,
+                          fillColor: Colors.white,
+                        ),
+                        onChanged: (value) {
+                          travelersInfo[index]['aadhar'] = value;
+                        },
+                      ),
+                      SizedBox(height: 10),
+
+                      // Phone number input
+                      TextField(
+                        keyboardType: TextInputType.phone,
+                        decoration: InputDecoration(
+                          labelText: 'Phone No.',
+                          border: OutlineInputBorder(),
+                          filled: true,
+                          fillColor: Colors.white,
+                        ),
+                        onChanged: (value) {
+                          travelersInfo[index]['phone'] = value;
+                        },
+                      ),
+                    ],
+                  ),
                 );
               }),
             ),
-
             // "Submit Booking" button
             Center(
               child: ElevatedButton(
                 onPressed: submitBooking,
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                  backgroundColor: Color(0xFF5E8953),
+                  backgroundColor: Color(0xFF1F6029),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18),
+                  ),
                 ),
                 child: Text(
                   'Submit Booking',

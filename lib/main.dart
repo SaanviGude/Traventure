@@ -110,197 +110,196 @@ class _LoginPageState extends State<LoginPage> {
             fit: BoxFit.cover,
           ),
         ),
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(18.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ClipRRect(
-    borderRadius: BorderRadius.circular(100), // Adjust the value to control the curve
-    child: Image.asset(
-    'assets/images/Traventurelogo1.png', // Your logo asset
-    height: 200, // Adjust size as needed
-    width: 200,
-    fit: BoxFit.cover, // Ensures the image covers the container while maintaining aspect ratio
-
-
-
-                ),
+        child: Container(
+          color: Colors.black.withOpacity(0.2), // Adjust the opacity as needed
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(18.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ClipRRect(
+              borderRadius: BorderRadius.circular(100), // Adjust the value to control the curve
+              child: Image.asset(
+              'assets/images/Traventurelogo1.png', // Your logo asset
+              height: 200, // Adjust size as needed
+              width: 200,
+              fit: BoxFit.cover, // Ensures the image covers the container while maintaining aspect ratio
                   ),
+                    ),
+                  SizedBox(height: 40),
+                  Container(
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Color(0xFF235537).withOpacity(0.9),
+                      borderRadius: BorderRadius.circular(25),
+                    ),
+                    child: Column(
+                      children: [
+                        SizedBox(height: 5),
+                        TextField(
+                          controller: _emailController,
+                          decoration: InputDecoration(
+                            labelText: 'EMAIL',
+                            labelStyle: TextStyle(color: Colors.black,fontSize:20),
+                            filled: true,
 
+                            fillColor: Color(0xFFEEE2B3),
 
-                SizedBox(height: 30),
-                Container(
-                  padding: EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Color(0xFF235537).withOpacity(0.9),
-                    borderRadius: BorderRadius.circular(25),
-                  ),
-                  child: Column(
-                    children: [
-                      TextField(
-                        controller: _emailController,
-                        decoration: InputDecoration(
-                          labelText: 'EMAIL',
-                          labelStyle: TextStyle(color: Colors.black,fontSize:20),
-                          filled: true,
-
-                          fillColor: Color(0xFFEEE2B3),
-
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
                           ),
                         ),
-                      ),
-                      SizedBox(height: 16),
-                      TextField(
-                        controller: _passwordController,
-                        obscureText: true,
-                        decoration: InputDecoration(
-                          labelText: 'PASSWORD',
-                          labelStyle: TextStyle(color: Colors.black,fontSize: 20),
-                          filled: true,
-                          fillColor: Color(0xFFDCD0A1),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
+                        SizedBox(height: 16),
+                        TextField(
+                          controller: _passwordController,
+                          obscureText: true,
+                          decoration: InputDecoration(
+                            labelText: 'PASSWORD',
+                            labelStyle: TextStyle(color: Colors.black,fontSize: 20),
+                            filled: true,
+                            fillColor: Color(0xFFDCD0A1),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
                           ),
                         ),
-                      ),
-                      SizedBox(height: 8),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: TextButton(
+                        SizedBox(height: 8),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => ForgotPasswordScreen()),
+                              );
+
+                            },
+                            child: Text(
+                              'forgot password?',
+                              style: TextStyle(color: Color(0xFFEAE0AE),
+                                  fontStyle:  FontStyle.italic,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        ElevatedButton(
+                          onPressed: _loginUser, /*{ ,
+                            // Log in action
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => HomePage()),
+                            );
+                          },*/
+                          child: Text('LOGIN',style: TextStyle(color:Color(0xFF235537),fontSize: 20.00,fontWeight: FontWeight.bold)),
+                          style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 30),
+                            backgroundColor: Color(0xFFF3E5B5), // Fix for primary
+                          ),
+                        ),
+
+                        SizedBox(height: 10),
+                        TextButton(
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => ForgotPasswordScreen()),
+                              MaterialPageRoute(builder: (context) => UserProfilePage()),
                             );
-
                           },
                           child: Text(
-                            'forget password?',
-                            style: TextStyle(color: Color(0xFFEAE0AE),
+                            "don't have an account? create account",
+                            style: TextStyle(color: Color(0xFFDACEA0),
                                 fontStyle:  FontStyle.italic,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 20
                             ),
                           ),
                         ),
-                      ),
-                      SizedBox(height: 8),
-                      ElevatedButton(
-                        onPressed: _loginUser, /*{ ,
-                          // Log in action
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => HomePage()),
-                          );
-                        },*/
-                        child: Text('LOG IN',style: TextStyle(color:Color(0xFF235537))),
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 36),
-                          backgroundColor: Color(0xFFF3E5B5), // Fix for primary
-                        ),
-                      ),
+                        SizedBox(height: 5),
+                        /*Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            IconButton(
+                              icon: Icon(Icons.android,color: Colors.green,size:35),
 
-                      SizedBox(height: 16),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => UserProfilePage()),
-                          );
-                        },
-                        child: Text(
-                          "don't have account? create account",
-                          style: TextStyle(color: Color(0xFFDACEA0),
-                              fontSize: 20
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 16),
-                      /*Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          IconButton(
-                            icon: Icon(Icons.android,color: Colors.green,size:35),
-
-                            onPressed: () {
-                              // Google login action
-                            },
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.apple, color: Colors.black,size: 35 ),
-                            onPressed: () {
-                              // Apple login action
-                            },
-                          ),
-                        ],
-                      ),*/
-                    ],
+                              onPressed: () {
+                                // Google login action
+                              },
+                            ),
+                            IconButton(
+                              icon: Icon(Icons.apple, color: Colors.black,size: 35 ),
+                              onPressed: () {
+                                // Apple login action
+                              },
+                            ),
+                          ],
+                        ),*/
+                      ],
+                    ),
                   ),
-                ),
-                SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    ElevatedButton(
-                        onPressed: () async {
-                          try {
-                            // Sign in anonymously
-                            UserCredential userCredential = await FirebaseAuth.instance.signInAnonymously();
+                  SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      ElevatedButton(
+                          onPressed: () async {
+                            try {
+                              // Sign in anonymously
+                              UserCredential userCredential = await FirebaseAuth.instance.signInAnonymously();
 
-                            // Get the user ID
-                            String userId = userCredential.user?.uid ?? '';
+                              // Get the user ID
+                              String userId = userCredential.user?.uid ?? '';
 
-                            // Now you can use userId to navigate to your desired page
+                              // Now you can use userId to navigate to your desired page
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => noHomePage(userId: userId)), // Pass the userId if needed
+                              );
+                            } catch (e) {
+                              // Handle error
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Failed to log in anonymously: ${e.toString()}')),
+                              );
+                            }
+                          },
+                          /*onPressed: () {
+                            // Skip action
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => noHomePage(userId: userId)), // Pass the userId if needed
+                              MaterialPageRoute(builder: (context) => noHomePage()),
                             );
-                          } catch (e) {
-                            // Handle error
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Failed to log in anonymously: ${e.toString()}')),
+                          },*/
+                          child: Text('SKIP',
+                              style: TextStyle(color: Color(0xFF255A39),fontSize: 25.00)
+                          ),
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: Color(0xFFDACEA0)
+                          )
+                        //style: color:
+                      ),
+                      ElevatedButton(
+                          onPressed: () {
+                            // Admin action
+                            // Navigate to AdminLoginPage
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => AdminLoginPage()),
                             );
-                          }
-                        },
-                        /*onPressed: () {
-                          // Skip action
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => noHomePage()),
-                          );
-                        },*/
-                        child: Text('SKIP',
-                            style: TextStyle(color: Color(0xFF255A39),fontSize: 25.00)
-                        ),
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xFFDCD0A1)
-                        )
-                      //style: color:
-                    ),
-                    ElevatedButton(
-                        onPressed: () {
-                          // Admin action
-                          // Navigate to AdminLoginPage
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => AdminLoginPage()),
-                          );
-                        },
-                        child: Text('GUIDE', style: TextStyle(color: Color(0xFF255A39),fontSize: 25.00)),
-                        style:
-                        ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xFFDCD0A1)
-
-                        )
-
-                    ),
-                  ],
-                ),
-              ],
+                          },
+                          child: Text('GUIDE', style: TextStyle(color: Color(0xFF255A39),fontSize: 25.00)),
+                          style:
+                          ElevatedButton.styleFrom(
+                              backgroundColor: Color(0xFFDACEA0)
+                          )
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -315,179 +314,227 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   class _AdminLoginPageState extends State<AdminLoginPage> {
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+    final TextEditingController _usernameController = TextEditingController();
+    final TextEditingController _passwordController = TextEditingController();
+    final FirebaseAuth _auth = FirebaseAuth.instance;
+    final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future<void> _login() async {
-  try {
-  UserCredential userCredential = await _auth.signInWithEmailAndPassword(
-  email: _usernameController.text,
-  password: _passwordController.text,
-  );
-  DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('guides').doc(userCredential.user?.uid).get();
+    Future<void> _login() async {
+      try {
+        UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+          email: _usernameController.text,
+          password: _passwordController.text,
+        );
+        DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection(
+            'guides').doc(userCredential.user?.uid).get();
 
-  if (userDoc.exists) {
-    // User is a guide
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => GHomePage(selectedSearch:null, userId: userCredential.user?.uid ?? '')),
-    );
-  }else {
-    // User not found
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('User not found')));
-  }
-  // If successful, navigate to the guide home page
+        if (userDoc.exists) {
+          // User is a guide
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) =>
+                GHomePage(selectedSearch: null,
+                    userId: userCredential.user?.uid ?? '')),
+          );
+        } else {
+          // User not found
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('User not found')));
+        }
+        // If successful, navigate to the guide home page
 
-  } catch (e) {
-  print(e.toString());
-  // Show error message
-  ScaffoldMessenger.of(context).showSnackBar(
-  SnackBar(content: Text('Failed to login: ${e.toString()}')),
-  );
-  }
-  }
+      } catch (e) {
+        print(e.toString());
+        // Show error message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to login: ${e.toString()}')),
+        );
+      }
+    }
 
-  @override
-  Widget build(BuildContext context) {
-  return Scaffold(
-    resizeToAvoidBottomInset: false,
-  appBar: AppBar(
-    leading: IconButton(
-      icon: const Icon(Icons.arrow_back_outlined, color: Color(0xFFDCD0A1)),
-      onPressed: () {
-        Navigator.of(context).pop();
-      },
-    ),
-  title: Text(
-    'GUIDE LOGIN',
-    style: TextStyle(
-      fontFamily: 'Serif',
-      fontSize: 28,
-      color: Color(0xFFFFFFFF),
-      fontWeight: FontWeight.bold,
-    ),
-  ),
-  backgroundColor: Color(0xFF255A39),
-  ),
-  body: Container(
-  decoration: BoxDecoration(
-  image: DecorationImage(
-  image: AssetImage('assets/images/AppHS.jpeg'),
-  fit: BoxFit.cover,
-  ),
-  ),
-  child: Padding(
-  padding: const EdgeInsets.all(12.0),
-  child: Column(
-  mainAxisAlignment: MainAxisAlignment.center,
-  children: [
-  ClipRRect(
-  borderRadius: BorderRadius.circular(100),
-  child: Image.asset(
-  'assets/images/Traventurelogo1.png',
-  height: 200,
-  width: 200,
-  fit: BoxFit.cover,
-  ),
-  ),
-  SizedBox(height: 0),
-  Container(
-  padding: EdgeInsets.all(35),
-  decoration: BoxDecoration(
-  color: Color(0xFF235537).withOpacity(0.9),
-  borderRadius: BorderRadius.circular(25),
-  ),
-  child: Column(
-  mainAxisAlignment: MainAxisAlignment.center,
-  children: [
-  Row(
-  children: [
-  Text('Id:', style: TextStyle(color: Color(0xFFF3E5B5))),
-  Expanded(
-  child: TextField(
-  controller: _usernameController,
-  decoration: InputDecoration(
-  labelText: 'Username',
-  border: OutlineInputBorder(),
-  filled: true,
-  fillColor: Color(0xFFDCD0A1),
-  ),
-  ),
-  ),
-  ],
-  ),
-  SizedBox(height: 16),
-  Row(
-  children: [
-  Align(
-  alignment: Alignment.centerLeft,
-  child: Text('pwd', style: TextStyle(color: Color(0xFFF3E5B5))),
-  ),
-  Expanded(
-  child: TextField(
-  controller: _passwordController,
-  decoration: InputDecoration(
-  labelText: 'Password',
-  labelStyle: TextStyle(color: Colors.black),
-  border: OutlineInputBorder(),
-  filled: true,
-  fillColor: Color(0xFFDCD0A1),
-  ),
-  obscureText: true,
-  ),
-  ),
-  ],
-  ),
-  SizedBox(height: 8),
-  Align(
-  alignment: Alignment.centerRight,
-  child: TextButton(
-  onPressed: () {
-  // Forgot password action
-  },
-  child: Text(
-  'forget password?',
-  style: TextStyle(color: Color(0xFFEAE0AE),
-  fontStyle: FontStyle.italic,
-  fontWeight: FontWeight.bold,
-  fontSize: 20),
-  ),
-  ),
-  ),
-  SizedBox(height: 8),
-  ElevatedButton(
-  onPressed: _login,
-  child: Text('LOG IN', style: TextStyle(color: Color(0xFF235537))),
-  style: ElevatedButton.styleFrom(
-  padding: EdgeInsets.symmetric(vertical: 12, horizontal: 36),
-  backgroundColor: Color(0xFFF3E5B5),
-  ),
-  ),
-  SizedBox(height: 16),
-  TextButton(
-  onPressed: () {
-  // Create account action
-  Navigator.push(
-  context,
-  MaterialPageRoute(builder: (context) => GuideProfilePage()),
-  );
-  },
-  child: Text(
-  "don't have account? create account",
-  style: TextStyle(color: Color(0xFFDACEA0), fontSize: 20),
-  ),
-  ),
-  ],
-  ),
-  ),
-  ],
-  ),
-  ),
-  ),
-  );
-  }
+    @override
+    Widget build(BuildContext context) {
+      return Scaffold(
+        resizeToAvoidBottomInset: false,
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(
+                Icons.arrow_back_outlined, color: Color(0xFFDCD0A1)),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+          title: Text(
+            'GUIDE LOGIN',
+            style: TextStyle(
+              fontFamily: 'Serif',
+              fontSize: 26,
+              color: Color(0xFFFFFFFF),
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          backgroundColor: Color(0xFF255A39),
+        ),
+        body: Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/images/AppHS.jpeg'),
+              fit: BoxFit.cover,
+            ),
+          ),
+          child: Container(
+            color: Colors.black.withOpacity(0.2),
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0, vertical: 20.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(100),
+                      child: Image.asset(
+                        'assets/images/Traventurelogo1.png',
+                        height: 200,
+                        width: 200,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    SizedBox(height: 40),
+                    Container(
+                      padding: EdgeInsets.all(30),
+                      decoration: BoxDecoration(
+                        color: Color(0xFF235537).withOpacity(0.9),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Row(
+                            children: [
+                              /*Text(
+                                'ID:',
+                                style: TextStyle(color: Color(0xFFF3E5B5),
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold),
+                              ),*/
+                              //SizedBox(width: 0),
+                              Expanded(
+                                child: TextField(
+                                  controller: _usernameController,
+                                  decoration: InputDecoration(
+                                    labelText: 'GUIDE-ID',
+                                    labelStyle: TextStyle(color: Colors.black,fontSize: 20),
+                                    filled: true,
+                                    fillColor: Color(0xFFDCD0A1),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+            /*                                  filled: true,
+                                    fillColor: Color(0xFFDCD0A1),*/
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 16),
+                          Row(
+                            children: [
+                              /*Text(
+                                'PWD:',
+                                style: TextStyle(color: Color(0xFFF3E5B5),
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold),
+                              ),*/
+                              //SizedBox(width: 10),
+                              Expanded(
+                                child: TextField(
+                                  controller: _passwordController,
+                                  decoration: InputDecoration(
+                                    labelText: 'PASSWORD',
+                                    labelStyle: TextStyle(color: Colors.black,fontSize: 20),
+                                    filled: true,
+                                    fillColor: Color(0xFFDCD0A1),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    /*filled: true,
+                                    fillColor: Color(0xFFDCD0A1),
+                                  */),
+                                  obscureText: true,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 5),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: TextButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => ForgotPasswordScreen()),
+                                );
+                              },
+                              child: Text(
+                                'forgot password?',
+                                style: TextStyle(
+                                  color: Color(0xFFEAE0AE),
+                                  fontStyle: FontStyle.italic,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 10),
+                          ElevatedButton(
+                            onPressed: _login,
+                            child: Text(
+                              'LOGIN',
+                              style: TextStyle(
+                                color: Color(0xFF235537),
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              padding: EdgeInsets.symmetric(vertical: 14,
+                                  horizontal: 40),
+                              backgroundColor: Color(0xFFF3E5B5),
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => GuideProfilePage()),
+                              );
+                            },
+                            child: Text(
+                              "don't have an account? create account",
+                              style: TextStyle(
+                                color: Color(0xFFEAE0AE),
+                                fontSize: 19,
+                                fontStyle: FontStyle.italic,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
   }
 
 

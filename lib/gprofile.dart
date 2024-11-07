@@ -96,7 +96,7 @@ class _ProfilePageState extends State<GProfilePage> {
                             } else {
                               var data = snapshot.data!;
                               return Container(
-                                width: MediaQuery.of(context).size.width * 0.8,
+                                width: MediaQuery.of(context).size.width * 0.85,
                                 height: MediaQuery.of(context).size.height * 0.6,
                                 decoration: BoxDecoration(
                                   color: Colors.amber[100],
@@ -104,11 +104,11 @@ class _ProfilePageState extends State<GProfilePage> {
                                 ),
                                 child: Column(
                                   children: [
-                                    SizedBox(height: 10),
+                                    SizedBox(height: 20),
                                     // Display profile image if available
                                     CircleAvatar(
-                                      radius: 40,
-                                      backgroundColor: Colors.grey[300],
+                                      radius: 50,
+                                      backgroundColor: Colors.black,
                                       backgroundImage: data['imageUrl'] != null && data['imageUrl'] != ""
                                           ? NetworkImage(data['imageUrl']) // Display profile image
                                           : null,
@@ -120,7 +120,7 @@ class _ProfilePageState extends State<GProfilePage> {
                                       )
                                           : null, // Show default icon if no image
                                     ),
-                                    SizedBox(height: 10),
+                                    SizedBox(height: 12),
                                     Text(
                                       'GUIDE-ID: ${widget.userId}',
                                       style: TextStyle(
@@ -136,7 +136,7 @@ class _ProfilePageState extends State<GProfilePage> {
                                         fontSize: 24,
                                         fontFamily: 'Arial',
                                         fontWeight: FontWeight.bold,
-                                        color: Colors.green[800],
+                                        color: Color(0xFF235537),
                                       ),
                                     ),
                                     SizedBox(height: 20),
@@ -198,7 +198,7 @@ class _ProfilePageState extends State<GProfilePage> {
         children: [
           Icon(
             icon,
-            size: 24,
+            size: 26,
             color: Colors.black,
           ),
           SizedBox(width: 20),

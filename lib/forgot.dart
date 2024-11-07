@@ -69,7 +69,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 TextField(
                   controller: _idController,
                   decoration: InputDecoration(
-                    labelText: 'email id:',
+                    labelText: 'EMAIL',
                     filled: true,
                     fillColor: Color(0xFFEEE2B3),
                     border: OutlineInputBorder(
@@ -79,45 +79,55 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 ),
 
                 SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    _resetPassword();
-                    // Submit logic
-                    /*Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => reset()),
-                    );*/
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFFE4D59F),
-                    padding: EdgeInsets.symmetric(vertical: 15, horizontal: 45),
-                  ),
-                  child: Text(
-                    'SUBMIT',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Color(0xFF235537),
+                Row(
+                  children: [
+                    SizedBox(width: 5),
+                    ElevatedButton(
+                      onPressed: () {
+                        _resetPassword();
+                        // Submit logic
+                        /*Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => reset()),
+                        );*/
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFFE4D59F),
+                        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                      ),
+                      child: Text(
+                        'BACK',
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: Color(0xFF235537),
+                            fontWeight: FontWeight.bold
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                SizedBox(height: 20),
-                TextButton(
-                  onPressed: () {
-                    // Back button logic
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => LoginPage()),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFFE4D59F),
-                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 75),
-                  ),
+                    SizedBox(width: 50),
+                    TextButton(
+                      onPressed: () {
+                        // Back button logic
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => LoginPage()),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFFE4D59F),
+                        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                      ),
 
-                  child: Text(
-                    'BACK',
-                    style: TextStyle(color: Color(0xFF235537)),
-                  ),
+                      child: Text(
+                        'SUBMIT',
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: Color(0xFF235537),
+                          fontWeight: FontWeight.bold
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

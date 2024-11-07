@@ -727,7 +727,7 @@ class _HomePageState extends State<GHomePage> {
             );
           },
         ),
-        backgroundColor: Color(0xFF5E8953),
+        backgroundColor: Color(0xFF255A39),
         actions: <Widget>[
           IconButton(
             onPressed: () async {
@@ -822,7 +822,7 @@ class _HomePageState extends State<GHomePage> {
                   Divider(),
                   SizedBox(height: 20),
                   ListTile(
-                    leading: Icon(Icons.plus_one_outlined, size: 50),
+                    leading: Icon(Icons.add_box_outlined, size: 50),
                     title: Text(
                       'PACKAGE',
                       style: TextStyle(
@@ -931,7 +931,7 @@ class _HomePageState extends State<GHomePage> {
               child: GridView.builder(
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
-                  childAspectRatio: 0.75,
+                  childAspectRatio: 0.8,
                   crossAxisSpacing: 10,
                   mainAxisSpacing: 10,
                 ),
@@ -979,8 +979,8 @@ class TripCard extends StatelessWidget {
     required this.packageId,
   }) : super(key: key);
 
-  // Function to open URL in browser
-  void _openLocationUrl(String url) async {
+  // Function to launch a URL (Google Maps in this case)
+  Future<void> _launchUrl(String url) async {
     if (await canLaunch(url)) {
       await launch(url);
     } else {
@@ -1001,9 +1001,9 @@ class TripCard extends StatelessWidget {
               title: name,
               price: price,
               days: days,
-              rating: rating,
-              description: description,*/
-
+              location_url: location_url,
+              description: description,
+              */
               packageId: packageId, // Pass package ID to detail page
             ),
           ),
@@ -1050,41 +1050,53 @@ class TripCard extends StatelessWidget {
                     Text(
                       name,
                       style: TextStyle(
+                        fontFamily: 'Serif',
                         fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                        fontSize: 15,
                       ),
                     ),
-                    SizedBox(height: 5),
-                    Text(
-                      price.toString(),
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.black87,
-                      ),
+                    SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Icon(Icons.currency_rupee, color: Color(0xFF1F6029), size: 15, weight: 15),
+                        Text(
+                          price.toString(),
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Color(0xFF1F6029),
+                          ),
+                        ),
+                      ],
                     ),
-                    SizedBox(height: 5),
+                    SizedBox(height: 3),
                     Text(
                       days,
                       style: TextStyle(
                         fontSize: 12,
-                        color: Color(0xFF000000),
+                        color: Colors.black87,
                       ),
                     ),
                     SizedBox(height: 5),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: GestureDetector(
-                    onTap: () => _openLocationUrl(location_url), // Open location on tap
-                    child: Text(
-                      'Location',
-                      style: TextStyle(
-                        fontSize: 16.0,
-                        color: Colors.blue, // Highlight as a link
-                        decoration: TextDecoration.underline,
-                      ),
+                    Row(
+                      children: [
+                        SizedBox(height: 5),
+                        GestureDetector(
+                          onTap: () {
+                            _launchUrl(location_url); // Open location URL in Maps
+                          },
+                          child: Row(
+                            children: [
+                              Icon(Icons.location_on, color: Colors.blue, size: 16),
+                              SizedBox(width: 5),
+                              Text(
+                                'View on Map',
+                                style: TextStyle(fontSize: 12, color: Colors.blue),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ),
                   ],
                 ),
               ),
@@ -1355,16 +1367,20 @@ class CustomSearchDelegate extends SearchDelegate {
         matchQuery.add(term);
       }
     }
-    return ListView.builder(
-      itemCount: matchQuery.length,
-      itemBuilder: (context, index) {
-        return ListTile(
-          title: Text(matchQuery[index]),
-          onTap: () {
-            close(context, matchQuery[index]);
-          },
-        );
-      },
+    return Container(
+      color: Color(0xFFE8DCBF),
+      child: ListView.builder(
+        itemCount: matchQuery.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            leading: Icon(Icons.arrow_forward, color: Colors.black87),
+            title: Text(matchQuery[index]),
+            onTap: () {
+              close(context, matchQuery[index]);
+            },
+          );
+        },
+      ),
     );
   }
 }

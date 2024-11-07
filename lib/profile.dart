@@ -92,7 +92,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             } else {
                               var data = snapshot.data!;
                               return Container(
-                                width: MediaQuery.of(context).size.width * 0.8,
+                                width: MediaQuery.of(context).size.width * 0.85,
                                 height: MediaQuery.of(context).size.height * 0.6,
                                 decoration: BoxDecoration(
                                   color: Colors.amber[100],
@@ -100,10 +100,10 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ),
                                 child: Column(
                                   children: [
-                                    SizedBox(height: 10),
+                                    SizedBox(height: 20),
                                     // Profile Image
                                     CircleAvatar(
-                                      radius: 40,
+                                      radius: 50,
                                       backgroundImage: data['imageUrl'] != null
                                           ? NetworkImage(data['imageUrl']) // Use the fetched image URL
                                           : null,
@@ -116,13 +116,13 @@ class _ProfilePageState extends State<ProfilePage> {
                                       )
                                           : null,
                                     ),
-                                    SizedBox(height: 10),
+                                    SizedBox(height: 12),
                                     Text(
                                       'USER-ID: ${widget.userId}',
                                       style: TextStyle(
                                         fontSize: 16,
                                         fontFamily: 'Arial',
-                                        color: Colors.grey[700],
+                                        color: Colors.black,
                                       ),
                                     ),
                                     SizedBox(height: 20),
@@ -132,7 +132,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                         fontSize: 24,
                                         fontFamily: 'Arial',
                                         fontWeight: FontWeight.bold,
-                                        color: Colors.green[800],
+                                        color: Color(0xFF235537),
                                       ),
                                     ),
                                     SizedBox(height: 20),
@@ -196,7 +196,7 @@ class _ProfilePageState extends State<ProfilePage> {
         children: [
           Icon(
             icon,
-            size: 24,
+            size: 26,
             color: Colors.black,
           ),
           SizedBox(width: 20),

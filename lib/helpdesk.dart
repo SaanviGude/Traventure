@@ -232,7 +232,7 @@ class helpdesk extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'ABOUT US',
+                        ' ABOUT US',
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
@@ -257,18 +257,21 @@ class helpdesk extends StatelessWidget {
                       Text('1. Krutika Amonkar'),
                       Text('2. Saanvi Gude'),
                       Text('3. Sahana Bhat'),
-                      SizedBox(height: 12),
-                      GestureDetector(
-                        onTap: _launchInstagram,
-                        child: Row(
-                          children: [
-                            FaIcon(FontAwesomeIcons.instagram, color: Colors.black, size: 28),
-                            SizedBox(width: 10),
-                            Text(
-                              'Follow us on Instagram',
-                              style: TextStyle(fontSize: 18, color: Colors.black),
-                            ),
-                          ],
+                      SizedBox(height: 15),
+                      Center(
+                        child: GestureDetector(
+                          onTap: _launchInstagram,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              FaIcon(FontAwesomeIcons.instagram, color: Colors.black, size: 28),
+                              SizedBox(width: 10),
+                              Text(
+                                'Follow us on Instagram',
+                                style: TextStyle(fontSize: 18, color: Colors.black),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],
@@ -278,6 +281,8 @@ class helpdesk extends StatelessWidget {
 
                 // Help Desk Section
                 Container(
+                  width: 300, // Ensures a square shape
+                  height: 200,
                   padding: EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: Color(0xFFFFFFFF), // Light cream color for the box
@@ -289,7 +294,7 @@ class helpdesk extends StatelessWidget {
                       Row(
                         children: [
                           Text(
-                            'HELP DESK',
+                            ' HELP DESK',
                             style: TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.bold,
@@ -297,10 +302,10 @@ class helpdesk extends StatelessWidget {
                             ),
                           ),
                           Spacer(),
-                          Icon(Icons.support_agent, color: Colors.black),
+                          Icon(Icons.support_agent, color: Colors.black , size: 30),
                         ],
                       ),
-                      SizedBox(height: 12),
+                      SizedBox(height: 15),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
@@ -309,14 +314,14 @@ class helpdesk extends StatelessWidget {
                               GestureDetector(
                                 onTap: _makePhoneCall,
                                 child: CircleAvatar(
-                                  radius: 40,
-                                  backgroundColor: Color(0xFFF3E5B5),
-                                  child: Icon(Icons.phone, size: 40, color: Color(0xFF6A754C)),
+                                  radius: 36,
+                                  backgroundColor: Colors.black,
+                                  child: Icon(Icons.phone, size: 32, color: Colors.white),
                                 ),
                               ),
                               SizedBox(height: 10),
                               Text(
-                                'CALL US',
+                                'CALL',
                                 style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
                               ),
                             ],
@@ -326,14 +331,14 @@ class helpdesk extends StatelessWidget {
                               GestureDetector(
                                 onTap: _sendEmail,
                                 child: CircleAvatar(
-                                  radius: 40,
-                                  backgroundColor: Color(0xFFF3E5B5),
-                                  child: Icon(Icons.email, size: 40, color: Color(0xFF6A754C)),
+                                  radius: 36,
+                                  backgroundColor: Colors.black,
+                                  child: Icon(Icons.email, size: 32, color: Colors.white),
                                 ),
                               ),
                               SizedBox(height: 10),
                               Text(
-                                'EMAIL US',
+                                'EMAIL',
                                 style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
                               ),
                             ],
@@ -351,3 +356,4 @@ class helpdesk extends StatelessWidget {
     );
   }
 }
+

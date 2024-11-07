@@ -1555,7 +1555,7 @@ class _HomePageState extends State<HomePage> {
             );
           },
         ),
-        backgroundColor: Color(0xFF5E8953),
+        backgroundColor: Color(0xFF255A39),
         actions: <Widget>[
           IconButton(
             onPressed: () async {
@@ -1684,6 +1684,16 @@ class _HomePageState extends State<HomePage> {
                     },
                   ),
                   ListTile(
+                    leading: Icon(Icons.sos, size: 50),
+                    title: const Text('Signal',
+                        style: TextStyle(
+                          fontSize: 30,
+                          fontWeight: FontWeight.w500,)),
+                    /*onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => helpdesk()));
+                    },*/
+                  ),
+                  ListTile(
                     leading: Icon(Icons.logout_outlined, size: 50),
                     title: const Text('Log Out',
                         style: TextStyle(
@@ -1746,7 +1756,7 @@ class _HomePageState extends State<HomePage> {
               child: GridView.builder(
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
-                  childAspectRatio: 0.75,
+                  childAspectRatio: 0.80,
                   crossAxisSpacing: 10,
                   mainAxisSpacing: 10,
                 ),
@@ -1864,24 +1874,30 @@ class TripCard extends StatelessWidget {
                     Text(
                       name,
                       style: TextStyle(
+                        fontFamily: 'Serif',
                         fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                        fontSize: 15,
                       ),
                     ),
-                    SizedBox(height: 5),
-                    Text(
-                      price.toString(),
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.black87,
-                      ),
+                    SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Icon(Icons.currency_rupee, color: Color(0xFF1F6029), size: 15, weight: 15),
+                        Text(
+                          price.toString(),
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Color(0xFF1F6029),
+                          ),
+                        ),
+                      ],
                     ),
-                    SizedBox(height: 5),
+                    SizedBox(height: 3),
                     Text(
                       days,
                       style: TextStyle(
                         fontSize: 12,
-                        color: Color(0xFF000000),
+                        color: Colors.black87,
                       ),
                     ),
                     SizedBox(height: 5),
@@ -2159,6 +2175,7 @@ class CustomSearchDelegate extends SearchDelegate {
       itemCount: matchQuery.length,
       itemBuilder: (context, index) {
         return ListTile(
+          leading: Icon(Icons.arrow_forward, color: Colors.black87),
           title: Text(matchQuery[index]),
           onTap: () {
             close(context, matchQuery[index]);
@@ -2176,16 +2193,20 @@ class CustomSearchDelegate extends SearchDelegate {
         matchQuery.add(term);
       }
     }
-    return ListView.builder(
-      itemCount: matchQuery.length,
-      itemBuilder: (context, index) {
-        return ListTile(
-          title: Text(matchQuery[index]),
-          onTap: () {
-            close(context, matchQuery[index]);
-          },
-        );
-      },
+    return Container(
+      color: Color(0xFFE8DCBF),
+      child: ListView.builder(
+        itemCount: matchQuery.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            leading: Icon(Icons.arrow_forward, color: Colors.black87),
+            title: Text(matchQuery[index]),
+            onTap: () {
+              close(context, matchQuery[index]);
+            },
+          );
+        },
+      ),
     );
   }
 }

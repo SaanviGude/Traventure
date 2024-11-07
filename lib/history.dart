@@ -294,7 +294,7 @@ class HistoryScreen extends StatelessWidget {
       home: Scaffold(
         backgroundColor: Color(0xFFDCD0A1),
         appBar: AppBar(
-          backgroundColor: Color(0xFF4D8C53),
+          backgroundColor: Color(0xFF255A39),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_outlined, color: Color(0xFFDCD0A1)),
             onPressed: () {
@@ -399,9 +399,21 @@ class FeedbackCard extends StatelessWidget {
   /* DateTime dateTime = date.toDate();
     String formattedDate = DateFormat('yyyy-MM-dd').format(dateTime);*/
     return Container(
-      decoration: BoxDecoration(
+      decoration: /*BoxDecoration(
         color: Color(0xFFFFFFFF),
         borderRadius: BorderRadius.circular(16),
+      ),*/
+      BoxDecoration(
+        color: Color(0xFFFFFFFF),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1), // Light shadow color
+            spreadRadius: 1,  // The spread of the shadow
+            blurRadius: 8,    // How blurry the shadow is
+            offset: Offset(0, 4), // Shadow position (vertical, horizontal)
+          ),
+        ],
       ),
       child: Padding(
         padding: const EdgeInsets.all(15.0),
@@ -412,7 +424,7 @@ class FeedbackCard extends StatelessWidget {
 
               children: [
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(50),
+                  borderRadius: BorderRadius.circular(10),
                   child: Image.network(
                     imageUrl,
                     height: 70,
@@ -431,32 +443,34 @@ class FeedbackCard extends StatelessWidget {
                       title,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 20,
+                        fontFamily: 'serif',
+                        fontSize: 17.5,
                       ),
                     ),
 
-                    Text(
+                    Row(
+                      children: [
+                        Icon(Icons.currency_rupee, color: Color(0xFF1F6029), size: 15, weight: 15),
+                        Text(
+                          price.toString(),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                              color: Color(0xFF1F6029)
+                          ),
 
-                      price.toString(),
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-
+                        ),
+                      ],
                     ),
-
-
                   ],
-
                 ),
               ],
             ),
             Align(
-
               alignment: Alignment.centerRight,
               child: Text(
                 date,
-                style: TextStyle(color: Colors.black),
+                style: TextStyle(color: Colors.deepOrange, fontWeight: FontWeight.bold),
               ),
             ),
 

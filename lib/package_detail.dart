@@ -1173,11 +1173,13 @@ class _PackageDetailPageState extends State<PackageDetailPage> {
 import 'package:url_launcher/url_launcher.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:palette_generator/palette_generator.dart';
 import 'book.dart';
+import 'dart:ui';
 
-class PackageDetailPage extends StatelessWidget {
+class PackageDetailPage extends StatefulWidget {
   final String? userId;
-  final String? imageUrl;  // URL of the image stored in Firebase Storage
+  final String? imageUrl; // URL of the image stored in Firebase Storage
   final String title;
   final double price;
   final String days;
@@ -1187,7 +1189,7 @@ class PackageDetailPage extends StatelessWidget {
 
   PackageDetailPage({
     required this.userId,
-    required this.imageUrl,  // Use imageUrl instead of image
+    required this.imageUrl,
     required this.title,
     required this.price,
     required this.days,
@@ -1195,6 +1197,29 @@ class PackageDetailPage extends StatelessWidget {
     required this.description,
     required this.packageId,
   });
+
+  @override
+  _PackageDetailPageState createState() => _PackageDetailPageState();
+}
+
+class _PackageDetailPageState extends State<PackageDetailPage> {
+  Color? mainColor;
+
+  @override
+  void initState() {
+    super.initState();
+    _updateMainColor();
+  }
+
+  Future<void> _updateMainColor() async {
+    if (widget.imageUrl != null) {
+      final PaletteGenerator paletteGenerator =
+      await PaletteGenerator.fromImageProvider(NetworkImage(widget.imageUrl!));
+      setState(() {
+        mainColor = paletteGenerator.dominantColor?.color ?? Colors.grey[300];
+      });
+    }
+  }
 
   void _launchMaps(String url) async {
     if (await canLaunch(url)) {
@@ -1207,6 +1232,7 @@ class PackageDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_outlined, color: Color(0xFFDCD0A1)),
@@ -1215,7 +1241,7 @@ class PackageDetailPage extends StatelessWidget {
           },
         ),
         title: Text(
-          title,
+          widget.title,
           style: TextStyle(
             fontFamily: 'Serif',
             fontSize: 28,
@@ -1223,94 +1249,195 @@ class PackageDetailPage extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: Color(0xFF5E8953),
+        backgroundColor: Color(0xFF1F6029),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Display the image from Firebase Storage or show a placeholder
-              imageUrl != null
-                  ? Image.network(
-                imageUrl!, // Load the image from the URL
-                fit: BoxFit.cover,
-                height: 200, // Set height as needed
-                width: double.infinity, // Make it full width
-              )
-                  : Container(
-                height: 200, // Placeholder height
-                color: Colors.grey, // Placeholder background color
-                child: Center(
-                  child: Text(
-                    'No Image Available',
-                    style: TextStyle(fontSize: 16, color: Colors.white),
-                  ),
+      body: Stack(
+        children: [
+          // Apply background color and blur based on image palette
+          if (mainColor != null)
+            Positioned.fill(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                child: Container(
+                  color: mainColor!.withOpacity(0.9), // Add slight opacity for softness
                 ),
               ),
-              SizedBox(height: 16.0), // Add space between elements
-
-              // Display the package details
-              Text(
-                title,
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 10),
-              Text('Price: $price', style: TextStyle(fontSize: 18)),
-              SizedBox(height: 10),
-              Text('Duration: $days', style: TextStyle(fontSize: 18)),
-              SizedBox(height: 10),
-              GestureDetector(
-                onTap: () {
-                  _launchMaps(location_url); // Open the location URL in maps
-                },
-                child: Text(
-                  'View on Map',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.blue, // Make the text blue to signify it's clickable
-                    decoration: TextDecoration.underline,
+            ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Display the image with rounded corners and shadow effect
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 10,
+                        offset: Offset(0, 5),
+                      ),
+                    ],
                   ),
-                ),
-              ),
-              SizedBox(height: 10),
-              Text('Description: $description', style: TextStyle(fontSize: 18)),
-
-              // Add some space before the button
-              SizedBox(height: 20),
-
-              // "Book Now" button
-              Center(
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => BookingPage(
-                          imageUrl: imageUrl,
-                          packageName: title,
-                          userId: FirebaseAuth.instance.currentUser?.uid,
-                          price: price,
-                          packageId:packageId,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(15),
+                    child: widget.imageUrl != null
+                        ? Image.network(
+                      widget.imageUrl!,
+                      fit: BoxFit.cover,
+                      height: 200,
+                      width: double.infinity,
+                    )
+                        : Container(
+                      height: 200,
+                      color: Colors.grey,
+                      child: Center(
+                        child: Text(
+                          'No Image Available',
+                          style: TextStyle(fontSize: 16, color: Colors.white),
                         ),
                       ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                    backgroundColor: Color(0xFF5E8953), // Same color as AppBar
-                  ),
-                  child: Text(
-                    'Book Now',
-                    style: TextStyle(fontSize: 18, color: Colors.white),
+                    ),
                   ),
                 ),
-              ),
-            ],
+                SizedBox(height: 16.0), // Spacing
+
+                // Display package details with card style
+                Container(
+                  padding: EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(15),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 10,
+                        offset: Offset(0, 5),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Title with larger font and bold weight
+                      Text(
+                        widget.title,
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                      SizedBox(height: 15),
+                      // Price and duration information
+                      Row(
+                        children: [
+                          Icon(Icons.currency_rupee, color: Color(0xFF1F6029), size: 25),
+                          SizedBox(width: 5),
+                          Text(
+                            'Price: ${widget.price}',
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Color(0xFF1F6029),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Icon(Icons.calendar_today, color: Colors.black87),
+                          SizedBox(width: 5),
+                          Text(
+                            'Duration: ${widget.days}',
+                            style: TextStyle(fontSize: 18, color: Colors.black87),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 10),
+
+                      // Location with clickable "View on Map" text
+                      Row(
+                        children: [
+                          Icon(Icons.location_on, color: Colors.blue),
+                          SizedBox(width: 5),
+                          GestureDetector(
+                            onTap: () {
+                              _launchMaps(widget.location_url);
+                            },
+                            child: Text(
+                              'View on Map',
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.blue,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 18),
+
+                      // Description with improved spacing
+                      Text(
+                        'Description',
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 5),
+                      Text(
+                        widget.description,
+                        style: TextStyle(fontSize: 16, color: Colors.black87),
+                      ),
+                      SizedBox(height: 5),
+                      Text(
+                        '                                            LIMITED OFFER!',
+                        style: TextStyle(fontFamily: 'serif', fontSize: 18, color: Colors.red, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Add space before the "Book Now" button
+                SizedBox(height: 20),
+
+                // "Book Now" button
+                Center(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => BookingPage(
+                            imageUrl: widget.imageUrl,
+                            packageName: widget.title,
+                            userId: FirebaseAuth.instance.currentUser?.uid,
+                            price: widget.price,
+                            packageId: widget.packageId,
+                          ),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                      backgroundColor: Color(0xFF1F6029),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                      elevation: 5,
+                    ),
+                    child: Text(
+                      'Book Now',
+                      style: TextStyle(fontSize: 18, color: Colors.white),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
 }
+

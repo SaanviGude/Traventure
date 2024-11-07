@@ -130,11 +130,11 @@ class _ProfilePageState extends State<GuideProfilePage> {
                             child: Column(
                               children: [
                                 _buildTextField("NAME", _nameController),
-                                _buildTextField("PHONE NO:", _phoneController),
-                                _buildTextField("AADHAR NO:", _aadhaarController),
-                                _buildTextField("ADDRESS:", _addressController, maxLines: 3),
-                                _buildTextField("EMAIL:", _emailController),
-                                _buildTextField("PASSWORD:", _passwordController, isPassword: true),
+                                _buildTextField("PHONE NUMBER", _phoneController),
+                                _buildTextField("AADHAR NUMBER", _aadhaarController),
+                                _buildTextField("ADDRESS", _addressController, maxLines: 3),
+                                _buildTextField("EMAIL", _emailController),
+                                _buildTextField("PASSWORD", _passwordController, isPassword: true),
                               ],
                             ),
                           ),
@@ -150,7 +150,7 @@ class _ProfilePageState extends State<GuideProfilePage> {
                         onPressed: () {
                           Navigator.of(context).pop();
                         },
-                        child: Text('BACK',
+                        child: Text('CANCEL',
                             style: TextStyle(color: Color(0xFF235537), fontSize: 25.00)),
                         style: ElevatedButton.styleFrom(
                           padding: EdgeInsets.symmetric(horizontal: 24),
@@ -235,12 +235,10 @@ class _ProfilePageState extends State<GuideProfilePage> {
                             ));
                           }
                         },
-                        child: Text('SIGN UP',
-                            style: TextStyle(color: Color(0xFF235537), fontSize: 25.00)),
+                        child: Text('SIGN UP', style: TextStyle(color: Color(0xFF235537), fontSize: 25.00)),
                         style: ElevatedButton.styleFrom(
                           padding: EdgeInsets.symmetric(horizontal: 24),
-                          backgroundColor: Color(0xFFDCD0A1),
-                          textStyle: TextStyle(color: Color(0xFF235537)),
+                          backgroundColor: Color(0xFFE4D59F),
                         ),
                       ),
                     ],

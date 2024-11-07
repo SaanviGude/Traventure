@@ -74,7 +74,7 @@ class _PackageGDetailPageState extends State<PackageGDetailPage> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: Color(0xFF5E8953),
+        backgroundColor: Color(0xFF1F6029),
       ),
       body: SingleChildScrollView(
         child: Padding(

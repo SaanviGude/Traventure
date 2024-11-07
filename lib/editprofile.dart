@@ -179,8 +179,8 @@ class _EditProfileState extends State<EditProfile> {
                               return Text('No user data found');
                             } else {
                               return Container(
-                                width: MediaQuery.of(context).size.width * 0.8,
-                                height: MediaQuery.of(context).size.height * 0.6,
+                                width: MediaQuery.of(context).size.width * 0.85,
+                                height: MediaQuery.of(context).size.height * 0.65,
                                 decoration: BoxDecoration(
                                   color: Colors.amber[100],
                                   borderRadius: BorderRadius.circular(20),
@@ -189,7 +189,7 @@ class _EditProfileState extends State<EditProfile> {
                                   key: _formKey,
                                   child: Column(
                                     children: [
-                                      SizedBox(height: 10),
+                                      SizedBox(height: 20),
                                       GestureDetector(
                                         onTap: _pickImage,
                                         child: CircleAvatar(
@@ -205,13 +205,13 @@ class _EditProfileState extends State<EditProfile> {
                                           backgroundColor: Colors.grey[300],
                                         ),
                                       ),
-                                      SizedBox(height: 10),
+                                      SizedBox(height: 12),
                                       Text(
                                         'USER-ID: ${widget.userId}',
                                         style: TextStyle(
                                           fontSize: 16,
                                           fontFamily: 'Arial',
-                                          color: Colors.grey[700],
+                                          color: Colors.black,
                                         ),
                                       ),
                                       SizedBox(height: 20),
@@ -273,11 +273,11 @@ class _EditProfileState extends State<EditProfile> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 20.0),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Icon(
             icon,
-            size: 24,
+            size: 30,
             color: Colors.black,
           ),
           SizedBox(width: 20),

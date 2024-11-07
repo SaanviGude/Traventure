@@ -1020,7 +1020,7 @@ class _PaymentPageState extends State<PaymentPage> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: Color(0xFF5E8953),
+        backgroundColor: Color(0xFF235537),
       ),
       body: Center(
         child: Column(
@@ -1032,7 +1032,7 @@ class _PaymentPageState extends State<PaymentPage> {
               onPressed: _openCheckout, // Reopen checkout if needed
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                backgroundColor: Color(0xFF5E8953),
+                backgroundColor: Color(0xFF235537),
               ),
               child: Text(
                 'Retry Payment',
@@ -1050,7 +1050,7 @@ class _PaymentPageState extends State<PaymentPage> {
               },// Reopen checkout if needed
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                backgroundColor: Color(0xFF5E8953),
+                backgroundColor: Color(0xFF235537),
               ),
               child: Text(
                 'home page',
@@ -1073,7 +1073,7 @@ class BookingConfirmationPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFF4D8C53),
+        backgroundColor: Color(0xFF235537),
         title: Text('Booking Confirmation'),
       ),
       body: Center(
@@ -1083,7 +1083,7 @@ class BookingConfirmationPage extends StatelessWidget {
             Icon(
               Icons.check_circle, // You can choose any icon you prefer
               size: 60,
-              color: Colors.green,
+              color: Color(0xFF235537),
             ),
             SizedBox(height: 20), // Space between the icon and the text
             Text(
@@ -1111,7 +1111,7 @@ class BookingConfirmationPage extends StatelessWidget {
                 style: TextStyle(color: Color(0xFFE4D59F)),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF5E8953), // Button color
+                backgroundColor: Color(0xFF235537), // Button color
               ),
             ),
 

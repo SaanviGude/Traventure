@@ -180,8 +180,9 @@ class _EditPackagePageState extends State<EditPackagePage> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: Color(0xFF5E8953),
+        backgroundColor: Color(0xFF235537),
       ),
+      backgroundColor: Color(0xFFDCD0A1),
       body: FutureBuilder<Map<String, dynamic>?>(
         future: packageData,
         builder: (context, snapshot) {
@@ -224,22 +225,22 @@ class _EditPackagePageState extends State<EditPackagePage> {
                         ),
                       ),
                       SizedBox(height: 20),
-                      _buildTextField(titleController, 'Package Title'),
+                      _buildTextField(titleController, 'PACKAGE NAME'),
                       SizedBox(height: 10),
-                      _buildTextField(priceController, 'Price', isNumeric: true),
+                      _buildTextField(priceController, 'PRICE', isNumeric: true),
                       SizedBox(height: 10),
-                      _buildTextField(daysController, 'Duration (Days)'),
+                      _buildTextField(daysController, 'DURATION'),
                       SizedBox(height: 10),
-                      _buildTextField(locationUrlController, 'Location'),
+                      _buildTextField(locationUrlController, 'LOCATION'),
                       SizedBox(height: 10),
-                      _buildTextField(descriptionController, 'Description'),
+                      _buildTextField(descriptionController, 'DESCRIPTION'),
                       SizedBox(height: 20),
                       Center(
                         child: ElevatedButton(
                           onPressed: savePackageData,
                           style: ElevatedButton.styleFrom(
                             padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                            backgroundColor: Color(0xFF5E8953),
+                            backgroundColor: Color(0xFF235537),
                           ),
                           child: Text(
                             'Save',
